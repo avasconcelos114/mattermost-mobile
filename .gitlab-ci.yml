@@ -1,0 +1,71 @@
+image: node:9.11.2
+
+stages:
+  - build
+  - test
+  - pull_upstream
+  - rebase
+  - build_android
+
+cache:
+  paths:
+    - node_modules/
+    - dist/
+
+install_dependencies:
+  stage: build
+  script:
+    - make pre-run
+    - cd node_modules/mattermost-redux && npm run build
+    - cd ../../
+    - make dist/assets
+  artifacts:
+    paths:
+      - node_modules/
+      - dist/
+
+run_unit_tests:
+  stage: test
+  script:
+    - find dist/assets/ -name config.json
+    - make check-style 
+    - npm test
+
+pull_master_upstream:
+  stage: pull_upstream
+  only:
+    - schedules 
+  before_script:
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - ssh-add <(echo "$SSH_PRIVATE_KEY") 
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - git config --global user.email "andre.tito@architectgroup.com"
+    - git config --global user.name "Andre Vasconcelos"
+  script:
+    - git clone https://andre.tito:andretito14@dev.architectgroup.com/argp/mchat/mchat-mobile.git
+    - cd *mobile
+    - git remote add upstream https://github.com/mattermost/mattermost-mobile.git
+    - git pull upstream master
+    - git push origin master
+
+rebase_to_master:
+  stage: rebase
+  only:
+    - schedules
+  before_script:
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - ssh-add <(echo "$SSH_PRIVATE_KEY") 
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - git config --global user.email "andre.tito@architectgroup.com"
+    - git config --global user.name "Andre Vasconcelos"
+
+  script:
+    - git clone https://andre.tito:andretito14@dev.architectgroup.com/argp/mchat/mchat-mobile.git
+    - cd *mobile
+    - git checkout develop
+    - git rebase origin/master
+    - git push --force origin develop
