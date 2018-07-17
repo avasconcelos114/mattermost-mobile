@@ -1,7 +1,13 @@
 package com.mattermost.rnbeta;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.drawee.interfaces.DraweeController;
+import com.facebook.drawee.view.SimpleDraweeView;
+
 import com.reactnativenavigation.controllers.SplashActivity;
 
 public class MainActivity extends SplashActivity {
@@ -22,10 +28,26 @@ public class MainActivity extends SplashActivity {
             finish();
             return;
         }
+
+        loadGif();
     }
 
     @Override
     public int getSplashLayout() {
         return R.layout.launch_screen;
     }
+
+    private void loadGif() {
+        Uri uri = Uri.parse(
+                "res:///" + R.drawable.mosaic_loading_page);
+
+        DraweeController controller = Fresco.newDraweeControllerBuilder()
+                .setUri(uri)
+                .setAutoPlayAnimations(true)
+                .build();
+
+        SimpleDraweeView simpleDraweeView = (SimpleDraweeView) findViewById(R.id.imgLogo);
+        simpleDraweeView.setController(controller);
+    }
+
 }
