@@ -28,6 +28,7 @@ import com.swmansion.gesturehandler.react.RNGestureHandlerPackage;
 
 import com.facebook.react.ReactPackage;
 import com.facebook.soloader.SoLoader;
+import com.facebook.drawee.backends.pipeline.Fresco;
 
 import com.imagepicker.ImagePickerPackage;
 import com.gnet.bottomsheet.RNBottomSheetPackage;
@@ -111,6 +112,8 @@ public class MainApplication extends NavigationApplication implements INotificat
     setActivityCallbacks(notificationsLifecycleFacade);
 
     SoLoader.init(this, /* native exopackage */ false);
+
+    Fresco.initialize(this);
   }
 
   @Override
