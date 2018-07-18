@@ -56,6 +56,25 @@
                 <data android:mimeType="*/*" />
             </intent-filter>
         </activity>
+
+        <receiver
+            android:name=".spp.PushMsgReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="com.sec.spp.permission.SEND">
+
+            <intent-filter android:priority="9999">
+                <action android:name="dfb27236d365bad3" />   <!-- Input your AppId that issued by SPP admin team -->
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".spp.SppDataClearReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_REMOVED" />
+                <data android:scheme="package" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>
