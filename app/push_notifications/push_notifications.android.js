@@ -19,12 +19,12 @@ class PushNotification {
             const sppModule = NativeModules.SppModuleAndroid;
             sppModule.requestSppRegId();
         }
-        
+
         NotificationsAndroid.setRegistrationTokenUpdateListener((deviceToken) => {
             this.deviceToken = deviceToken;
             if (this.onRegister) {
                 this.onRegister({token: this.deviceToken});
-                console.log("receive regId = " + this.deviceToken);
+                console.log('receive regId = ' + this.deviceToken); //eslint-disable-line no-console
             }
         });
 
