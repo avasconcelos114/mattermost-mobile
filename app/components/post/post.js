@@ -261,6 +261,13 @@ export default class Post extends PureComponent {
             return null;
         }
 
+        //mchat-mobile, block-3days-old-post
+        const data = new Date();
+        const now = data.getTime();
+        if (now - post.create_at > 259200000) {
+            return null;
+        }
+
         const style = getStyleSheet(theme);
         const isReplyPost = this.isReplyPost();
         const onUsernamePress = Config.ExperimentalUsernamePressIsMention ? this.autofillUserMention : this.viewUserProfile;

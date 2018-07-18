@@ -7,6 +7,7 @@ import {
     Platform,
     StyleSheet,
     View,
+    Text,
 } from 'react-native';
 
 import AnnouncementBanner from 'app/components/announcement_banner';
@@ -135,12 +136,18 @@ export default class ChannelPostList extends PureComponent {
                 LoadMorePosts = require('app/components/load_more_posts').default;
             }
 
+            //mchat-mobile, block-3days-old-post, text style added
+            const threeDayBlockString = '작성한 후 3일이 지난 글은 모바일에서 볼 수 없습니다.';
+
             return (
-                <LoadMorePosts
-                    channelId={this.props.channelId}
-                    loadMore={this.loadMorePostsTop}
-                    theme={this.props.theme}
-                />
+                <View>
+                    <LoadMorePosts
+                        channelId={this.props.channelId}
+                        loadMore={this.loadMorePosts}
+                        theme={this.props.theme}
+                    />
+                    <Text style={style.threeDayText}>{threeDayBlockString}</Text>
+                </View>
             );
         }
 
@@ -213,5 +220,12 @@ export default class ChannelPostList extends PureComponent {
 const style = StyleSheet.create({
     container: {
         flex: 1,
+    },
+
+    //mchat-mobile, block-3days-old-post, added style
+    threeDayText: {
+        color: 'white',
+        fontSize: 15,
+        textAlign: 'center',
     },
 });
