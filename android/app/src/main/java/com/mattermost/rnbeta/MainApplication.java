@@ -1,5 +1,7 @@
 package com.mattermost.rnbeta;
 
+import com.facebook.react.bridge.ReactContext;
+import com.mattermost.rnbeta.spp.RNSppPackage;
 import com.mattermost.share.SharePackage;
 import com.mattermost.share.RealPathUtil;
 
@@ -87,7 +89,8 @@ public class MainApplication extends NavigationApplication implements INotificat
             new InitializationPackage(this),
             new RNRecyclerviewListPackage(),
             new RNCWebViewPackage(),
-            new RNGestureHandlerPackage()
+            new RNGestureHandlerPackage(),
+            new RNSppPackage()
     );
   }
 
@@ -96,7 +99,15 @@ public class MainApplication extends NavigationApplication implements INotificat
     return "index";
   }
 
-  @Override
+    public static Context getContext() {
+        return instance;
+    }
+
+    public static ReactContext getReactContext() {
+        return instance.getReactNativeHost().getReactInstanceManager().getCurrentReactContext();
+    }
+
+    @Override
   public void onCreate() {
     super.onCreate();
     instance = this;

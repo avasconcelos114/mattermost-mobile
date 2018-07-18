@@ -1,7 +1,7 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import {AppRegistry, AppState, NativeModules} from 'react-native';
+import {AppRegistry, AppState, Platform, NativeModules} from 'react-native';
 import {NotificationsAndroid, PendingNotifications} from 'react-native-notifications';
 import Notification from 'react-native-notifications/notification.android';
 
@@ -17,10 +17,16 @@ class PushNotification {
         this.deviceNotification = null;
         this.deviceToken = null;
 
+        if (Platform.OS === 'android') {
+            const sppModule = NativeModules.SppModuleAndroid;
+            sppModule.requestSppRegId();
+        }
+        
         NotificationsAndroid.setRegistrationTokenUpdateListener((deviceToken) => {
             this.deviceToken = deviceToken;
             if (this.onRegister) {
                 this.onRegister({token: this.deviceToken});
+                console.log("receive regId = " + this.deviceToken);
             }
         });
 
