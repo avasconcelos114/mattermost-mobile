@@ -57,6 +57,27 @@ export default class FileAttachment extends PureComponent {
 
         if (!data || !data.id) {
             return null;
+        } else if (data.mime_type === 'application/pdf') {
+            //mchat-mobile, block-pdf
+            const pdfBlockText = '모바일에서는 PDF파일을 볼 수 없습니다.';
+            return (
+                <View style={style.attachmentContainer}>
+                    <Text
+                        numberOfLines={2}
+                        ellipsizeMode='tail'
+                        style={style.fileName}
+                    >
+                        {file.caption.trim()}
+                    </Text>
+                    <Text
+                        numberOfLines={2}
+                        ellipsizeMode='tail'
+                        style={style.fileInfo}
+                    >
+                        {pdfBlockText}
+                    </Text>
+                </View>
+            );
         }
 
         return (
@@ -97,7 +118,11 @@ export default class FileAttachment extends PureComponent {
         const style = getStyleSheet(theme);
 
         let fileAttachmentComponent;
-        if ((data && data.has_preview_image) || file.loading || isGif(data)) {
+
+        //Mchat-mobile, block-pdf
+        if (data && data.mime_type && data.mime_type === 'application/pdf') {
+            fileAttachmentComponent = null;
+        } else if ((data && data.has_preview_image) || file.loading || isGif(data)) {
             fileAttachmentComponent = (
                 <TouchableOpacity onPress={this.handlePreviewPress}>
                     <FileAttachmentImage
