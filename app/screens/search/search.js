@@ -378,6 +378,13 @@ export default class Search extends PureComponent {
         }
 
         if (isDateLine(item)) {
+            //mchat-mobile, mobile block 3days, delete date header if over 3days
+            const now = new Date().getTime();
+            const time = item.toString().split('-').splice(1, 1);
+            if (now - time > 259200000) {
+                return null;
+            }
+
             return (
                 <DateHeader
                     dateLineString={item}
@@ -714,6 +721,8 @@ export default class Search extends PureComponent {
             fontSize: 15,
         };
 
+        //mchat-mobile, mobile block 3days, in search, find in the 'ko.json' with 'mchat.block.search.3days'.
+        const separator = <PostSeparator theme={theme}/>;
         return (
             <SafeAreaView
                 excludeHeader={isLandscape && DeviceTypes.IS_IPHONE_X}
@@ -744,6 +753,15 @@ export default class Search extends PureComponent {
                             backArrowSize={28}
                         />
                     </View>
+                    <View>
+                        <Text style={style.message}>
+                            {intl.formatMessage({
+                                id: 'mchat.block.search.3days',
+                                defaultMessage: 'Can\'t search the post that made more than 3 days ago or from blocked team.',
+                            })}
+                        </Text>
+                        {separator}
+                    </View>
                     <SectionList
                         ref='list'
                         style={style.sectionList}
@@ -770,6 +788,7 @@ export default class Search extends PureComponent {
     }
 }
 
+//mchat-mobile, mobile-block-3days, 'messages' is added
 const getStyleFromTheme = makeStyleSheetFromTheme((theme) => {
     return {
         header: {
@@ -867,6 +886,14 @@ const getStyleFromTheme = makeStyleSheetFromTheme((theme) => {
         },
         loadingMore: {
             height: 60,
+        },
+        message: {
+            color: changeOpacity(theme.centerChannelColor, 0.8),
+            fontSize: 15,
+            lineHeight: 22,
+            textAlign: 'center',
+            marginLeft: 10,
+            marginRight: 10,
         },
     };
 });
