@@ -310,7 +310,7 @@ class ChannelIntro extends PureComponent {
     };
 
     render() {
-        const {currentChannel, theme} = this.props;
+        const {currentChannel, isLoadingPosts, theme, intl} = this.props;
         const style = getStyleSheet(theme);
         const channelType = currentChannel.type;
 
@@ -328,12 +328,19 @@ class ChannelIntro extends PureComponent {
             );
         }
 
+        //mchat-mobile, mobile 3days block, find in the 'ko.json' with 'intro_messages.limitedDate'.
         return (
             <View style={style.container}>
                 {profiles}
                 <View style={style.contentContainer}>
                     {this.buildContent()}
                 </View>
+                <Text style={style.message}>
+                    {intl.formatMessage({
+                        id: 'intro_messages.limitedDate',
+                        defaultMessage: 'Can\'t see the post that made more than 3 days ago.',
+                    })}
+                </Text>
             </View>
         );
     }

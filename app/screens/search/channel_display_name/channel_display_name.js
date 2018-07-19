@@ -11,11 +11,19 @@ export default class ChannelDisplayName extends PureComponent {
     static propTypes = {
         displayName: PropTypes.string,
         theme: PropTypes.object.isRequired,
+        post: PropTypes.object.isRequired,
     };
 
     render() {
         const {displayName, theme} = this.props;
         const styles = getStyleFromTheme(theme);
+
+        //mchat-mobile, mobile 3days block
+        const dateObjevt = new Date();
+        const time = dateObjevt.getTime();
+        if ((time - this.props.post.create_at) > 259200000) {
+            return null;
+        }
 
         return (
             <Text style={styles.channelName}>{displayName}</Text>
