@@ -18,6 +18,9 @@ function makeMapStateToProps() {
         return {
             displayName: channel ? channel.display_name : '',
             theme: getTheme(state),
+
+            //mchat-mobile, mobile 3days block, just add 'post' to props
+            post,
         };
     };
 }
