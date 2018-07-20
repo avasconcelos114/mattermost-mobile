@@ -3,11 +3,14 @@
 
 import {connect} from 'react-redux';
 
-import {makeGetChannel} from 'mattermost-redux/selectors/entities/channels';
 import {getPost} from 'mattermost-redux/selectors/entities/posts';
 import {getTheme} from 'mattermost-redux/selectors/entities/preferences';
 
 import ChannelDisplayName from './channel_display_name';
+
+//mchat-mobile, block mobile team, add import getChannelsInCurrentTeam and getCurrentTeam
+import {getChannelsInCurrentTeam, makeGetChannel} from 'mattermost-redux/selectors/entities/channels';
+import {getCurrentTeam} from 'mattermost-redux/selectors/entities/teams';
 
 function makeMapStateToProps() {
     const getChannel = makeGetChannel();
@@ -19,8 +22,10 @@ function makeMapStateToProps() {
             displayName: channel ? channel.display_name : '',
             theme: getTheme(state),
 
-            //mchat-mobile, mobile 3days block, just add 'post' to props
+            //mchat-mobile, mobile 3days, team block
             post,
+            channels: getChannelsInCurrentTeam(state),
+            currentTeam: getCurrentTeam(state),
         };
     };
 }
