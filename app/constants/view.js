@@ -48,6 +48,7 @@ const ViewTypes = keyMirror({
 
     GITLAB: null,
     SAML: null,
+    BAS: null,
 
     SET_INITIAL_POST_VISIBILITY: null,
     INCREASE_POST_VISIBILITY: null,
@@ -65,6 +66,7 @@ const ViewTypes = keyMirror({
 
     INCREMENT_EMOJI_PICKER_PAGE: null,
 
+    LAUNCH_SSO: null,
     LAUNCH_LOGIN: null,
     LAUNCH_CHANNEL: null,
 
