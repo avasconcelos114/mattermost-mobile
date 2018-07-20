@@ -24,6 +24,9 @@ import {getAllowedServerMaxFileSize} from 'app/utils/file';
 
 import PostTextbox from './post_textbox';
 
+//mchat-mobile, block mobile team
+import {getCurrentTeam} from 'mattermost-redux/selectors/entities/teams';
+
 const MAX_MESSAGE_LENGTH = 4000;
 
 function mapStateToProps(state, ownProps) {
@@ -59,6 +62,10 @@ function mapStateToProps(state, ownProps) {
         theme: getTheme(state),
         uploadFileRequestStatus: state.requests.files.uploadFiles.status,
         value: currentDraft.draft,
+
+        //mchat-mobile, block mobile team
+        currentTeam: getCurrentTeam(state),
+        currentChannel,
     };
 }
 

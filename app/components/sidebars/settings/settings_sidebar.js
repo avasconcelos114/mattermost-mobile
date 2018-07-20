@@ -45,6 +45,9 @@ export default class SettingsDrawer extends PureComponent {
         navigator: PropTypes.object,
         status: PropTypes.string,
         theme: PropTypes.object.isRequired,
+
+        //mchat-mobile, block mobile team, setting
+        currentTeam: PropTypes.object.isRequired,
     };
 
     static defaultProps = {
@@ -238,8 +241,14 @@ export default class SettingsDrawer extends PureComponent {
     };
 
     renderNavigationView = () => {
-        const {currentUser, navigator, theme} = this.props;
+        const {currentUser, navigator, theme, currentTeam} = this.props;
         const style = getStyleSheet(theme);
+
+        ////mchat-mobile, block mobile team, setting
+        let isAllowed = true;
+        if (!currentTeam.display_name.endsWith('\u200b')) {
+            isAllowed = false;
+        }
 
         return (
             <SafeAreaView
@@ -270,7 +279,7 @@ export default class SettingsDrawer extends PureComponent {
                             />
                         </View>
                         <View style={style.separator}/>
-                        <View style={style.block}>
+                        {isAllowed ? <View style={style.block}>
                             <DrawerItem
                                 defaultMessage='Recent Mentions'
                                 i18nId='search_header.title2'
@@ -289,7 +298,7 @@ export default class SettingsDrawer extends PureComponent {
                                 separator={false}
                                 theme={theme}
                             />
-                        </View>
+                        </View> : null }
                         <View style={style.separator}/>
                         <View style={style.block}>
                             <DrawerItem
