@@ -6,8 +6,11 @@ import {connect} from 'react-redux';
 
 import {selectFocusedPostId, selectPost} from 'mattermost-redux/actions/posts';
 import {clearSearch, removeSearchTerms, searchPostsWithParams, getMorePostsForSearch} from 'mattermost-redux/actions/search';
-import {getCurrentChannelId, filterPostIds} from 'mattermost-redux/selectors/entities/channels';
-import {getCurrentTeamId} from 'mattermost-redux/selectors/entities/teams';
+
+//mchat-mobile, block mobile team, add import getCurrentTeam and getChannelsInCurrentTeam
+import {getCurrentTeamId, getCurrentTeam} from 'mattermost-redux/selectors/entities/teams';
+import {getChannelsInCurrentTeam, filterPostIds, getCurrentChannelId} from 'mattermost-redux/selectors/entities/channels';
+
 import {getTheme} from 'mattermost-redux/selectors/entities/preferences';
 import {isMinimumServerVersion} from 'mattermost-redux/utils/helpers';
 import {getUserCurrentTimezone} from 'mattermost-redux/utils/timezone_utils';
@@ -67,6 +70,11 @@ function makeMapStateToProps() {
             enableDateSuggestion,
             timezoneOffsetInSeconds,
             viewArchivedChannels,
+
+            ////mchat-mobile, block mobile team
+            channels: getChannelsInCurrentTeam(state),
+            currentTeam: getCurrentTeam(state),
+            indexstate: state,
         };
     };
 }

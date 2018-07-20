@@ -40,6 +40,9 @@ import {changeOpacity, makeStyleSheetFromTheme} from 'app/utils/theme';
 import ChannelDisplayName from './channel_display_name';
 import SearchResultPost from './search_result_post';
 
+//mchat-mobile, block mobile team
+import {getPost} from 'mattermost-redux/selectors/entities/posts';
+
 const SECTION_HEIGHT = 20;
 const RECENT_LABEL_HEIGHT = 42;
 const RECENT_SEPARATOR_HEIGHT = 3;
@@ -74,6 +77,11 @@ export default class Search extends PureComponent {
         enableDateSuggestion: PropTypes.bool,
         timezoneOffsetInSeconds: PropTypes.number.isRequired,
         viewArchivedChannels: PropTypes.bool,
+
+        //mchat-mobile, block mobile team
+        channels: PropTypes.array.isRequired,
+        currentTeam: PropTypes.object.isRequired,
+        indexstate: PropTypes.object,
     };
 
     static defaultProps = {
@@ -98,6 +106,7 @@ export default class Search extends PureComponent {
             cursorPosition: 0,
             value: props.initialValue,
             managedConfig: {},
+            jsxData: [],
         };
     }
 
@@ -375,9 +384,15 @@ export default class Search extends PureComponent {
     };
 
     renderPost = ({item, index}) => {
-        const {postIds, theme} = this.props;
+        const {postIds, theme, indexstate, channels, currentTeam} = this.props;
         const {managedConfig} = this.state;
         const style = getStyleFromTheme(theme);
+
+        //mchat-mobile, block mobile team
+        let post;
+        if (postIds[index] && index % 2 === 1) {
+            post = getPost(indexstate, postIds[index]);
+        }
 
         if (item.id) {
             return (
@@ -394,14 +409,15 @@ export default class Search extends PureComponent {
             if (now - time > 259200000) {
                 return null;
             }
-
-            return (
+            this.state.jsxData.push(
                 <DateHeader
                     dateLineString={item}
                     index={index}
                 />
             );
+            return null;
         }
+        this.state.jsxData.push(null);
 
         let separator;
         const nextPost = postIds[index + 1];
@@ -409,8 +425,19 @@ export default class Search extends PureComponent {
             separator = <PostSeparator theme={theme}/>;
         }
 
+        //mchat-mobile, block mobile team
+        if (!currentTeam.display_name.endsWith('\u200b')) {
+            for (let i = 0; i < channels.length; i++) {
+                const channel = channels[i];
+                if (channel.id === post.channel_id) {
+                    return null;
+                }
+            }
+        }
+
         return (
             <View style={style.postResult}>
+                {this.state.jsxData[this.state.jsxData.length - 2]}
                 <ChannelDisplayName postId={item}/>
                 {this.archivedIndicator(postIds[index], style)}
                 <SearchResultPost
