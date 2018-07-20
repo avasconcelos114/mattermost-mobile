@@ -11,7 +11,11 @@ export default class ChannelDisplayName extends PureComponent {
     static propTypes = {
         displayName: PropTypes.string,
         theme: PropTypes.object.isRequired,
+
+        //mchat-mobile, add post, currentTeam and channels
         post: PropTypes.object.isRequired,
+        currentTeam: PropTypes.object.isRequired,
+        channels: PropTypes.array.isRequired,
     };
 
     render() {
@@ -23,6 +27,16 @@ export default class ChannelDisplayName extends PureComponent {
         const time = dateObjevt.getTime();
         if ((time - this.props.post.create_at) > 259200000) {
             return null;
+        }
+
+        //mchat-mobile, block mobile team
+        if (!this.props.currentTeam.display_name.endsWith('\u200b')) {
+            for (let i = 0; i < this.props.channels.length; i++) {
+                const channel = this.props.channels[i];
+                if (channel.id === this.props.post.channel_id) {
+                    return null;
+                }
+            }
         }
 
         return (
