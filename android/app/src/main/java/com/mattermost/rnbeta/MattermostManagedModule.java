@@ -11,9 +11,20 @@ import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.Promise;
+import com.facebook.react.bridge.WritableArray;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
+import com.mattermost.rnbeta.sso.SSORequestKey;
+
+import java.util.Map;
 
 public class MattermostManagedModule extends ReactContextBaseJavaModule {
     private static MattermostManagedModule instance;
+
+    private String mUserId;
+    private String mEpId;
+    private String mBaseUrl;
+    private String mSsoUrl;
 
     private boolean shouldBlurAppScreen = false;
 
@@ -36,6 +47,53 @@ public class MattermostManagedModule extends ReactContextBaseJavaModule {
     @Override
     public String getName() {
         return "MattermostManaged";
+    }
+
+    public void setBasInfo(Map<String, String> userInfo, Map<String, String> url) {
+        final WritableArray args = Arguments.createArray();
+
+        mEpId = userInfo.get(SSORequestKey.EPID);
+        mUserId = userInfo.get(SSORequestKey.USERID);
+        mBaseUrl = url.get(SSORequestKey.BASE);
+        mSsoUrl = url.get(SSORequestKey.SSO);
+
+        if (mUserId != null && mEpId != null && mBaseUrl != null && mSsoUrl != null) {
+            args.pushBoolean(true);
+
+        } else {
+            args.pushBoolean(false);
+        }
+
+        DeviceEventManagerModule.RCTDeviceEventEmitter emitter = MainApplication.getReactContext()
+                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class);
+
+        emitter.emit("managedInfoFromBAS", args);
+    }
+
+    public void sendInfoFromBAS(boolean isReady) {
+        WritableArray args = Arguments.createArray();
+        args.pushBoolean(isReady);
+
+        DeviceEventManagerModule.RCTDeviceEventEmitter emitter = MainApplication.getReactContext()
+                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class);
+
+        emitter.emit("managedInfoFromBAS", args);
+    }
+
+    @ReactMethod
+    public void getBasInfo(final Promise promise) {
+        try{
+            WritableMap map = Arguments.createMap();
+            map.putString("userId", mUserId);
+            map.putString("epId", mEpId);
+            map.putString("baseUrl", mBaseUrl);
+            map.putString("ssoUrl", mSsoUrl);
+
+            promise.resolve(map);
+
+        }catch (Exception e) {
+            promise.reject("no get User Infomations", e);
+        }
     }
 
     @ReactMethod

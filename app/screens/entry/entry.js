@@ -82,14 +82,62 @@ export default class Entry extends PureComponent {
         Client4.setUserAgent(DeviceInfo.getUserAgent());
         this.unsubscribeFromStore = store.subscribe(this.listenForHydration);
 
+        EventEmitter.on(ViewTypes.LAUNCH_SSO, this.handleLaunchSSO);
         EventEmitter.on(ViewTypes.LAUNCH_LOGIN, this.handleLaunchLogin);
         EventEmitter.on(ViewTypes.LAUNCH_CHANNEL, this.handleLaunchChannel);
     }
 
     componentWillUnmount() {
+        EventEmitter.off(ViewTypes.LAUNCH_SSO, this.handleLaunchSSO);
         EventEmitter.off(ViewTypes.LAUNCH_LOGIN, this.handleLaunchLogin);
         EventEmitter.off(ViewTypes.LAUNCH_CHANNEL, this.handleLaunchChannel);
     }
+
+    handleLaunchSSO = (initializeModules) => {
+        this.goToSSO(ViewTypes.BAS);
+
+        if (initializeModules) {
+            this.props.initializeModules();
+        }
+    }
+
+    goToSSO = (ssoType) => {
+        const {
+            theme,
+            navigator,
+        } = this.props;
+
+        const userId = app.userId;
+        const epId = app.epId;
+        const baseUrl = app.baseUrl;
+        const ssoUrl = app.ssoUrl;
+
+        console.log('SSO: ssoType = ' + ssoType); //eslint-disable-line no-console
+        console.log('SSO: userId = ' + userId); //eslint-disable-line no-console
+        console.log('SSO: epId = ' + epId); //eslint-disable-line no-console
+        console.log('SSO: baseUrl = ' + baseUrl); //eslint-disable-line no-console
+        console.log('SSO: ssoUrl = ' + ssoUrl); //eslint-disable-line no-console
+
+        navigator.push({
+            screen: 'SSO',
+            title: 'Login BAS',
+            animated: true,
+            backButtonTitle: '',
+            navigatorStyle: {
+                navBarTextColor: theme.sidebarHeaderTextColor,
+                navBarBackgroundColor: theme.sidebarHeaderBg,
+                navBarButtonColor: theme.sidebarHeaderTextColor,
+                screenBackgroundColor: theme.centerChannelBg,
+            },
+            passProps: {
+                ssoType,
+                userId,
+                epId,
+                baseUrl,
+                ssoUrl,
+            },
+        });
+    };
 
     handleLaunchLogin = (initializeModules) => {
         this.setState({launchLogin: true});

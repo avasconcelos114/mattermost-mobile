@@ -224,6 +224,8 @@ dependencies {
     // For WebP support, including animated WebP
     implementation 'com.facebook.fresco:animated-webp:1.10.0'
     implementation  'com.facebook.fresco:webpsupport:1.10.0'
+
+    implementation(name: 'routeservice', ext: 'aar')
 }
 
 // Run this once to be able to run the application with BUCK
