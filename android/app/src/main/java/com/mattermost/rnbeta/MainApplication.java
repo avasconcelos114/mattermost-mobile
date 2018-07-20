@@ -50,7 +50,9 @@ import com.wix.reactnativenotifications.core.JsIOHelper;
 
 import android.util.Log;
 
-public class MainApplication extends NavigationApplication implements INotificationsApplication, INotificationsDrawerApplication {
+import javax.annotation.Nonnull;
+
+public class MainApplication extends NavigationApplication implements INotificationsApplication {
   public NotificationsLifecycleFacade notificationsLifecycleFacade;
   public Boolean sharedExtensionIsOpened = false;
   public Boolean replyFromPushNotification = false;
@@ -99,15 +101,48 @@ public class MainApplication extends NavigationApplication implements INotificat
     return "index";
   }
 
-    public static Context getContext() {
-        return instance;
-    }
+  public static Context getContext() {
+    return instance;
+  }
 
-    public static ReactContext getReactContext() {
-        return instance.getReactNativeHost().getReactInstanceManager().getCurrentReactContext();
-    }
+  public static ReactContext getReactContext() {
+    return instance.getReactNativeHost().getReactInstanceManager().getCurrentReactContext();
+  }
 
-    @Override
+  public static boolean isInitReactNative() {
+    return instance.isReactContextInitialized();
+  }
+
+  public static void waitInitReactContext(@Nonnull final Activity activity, @Nonnull final ReactContextInitCallback callback) {
+    new Thread(new Runnable() {
+
+      @Override
+      public void run() {
+        /**
+         * reactContext가 초기화 될 때까지 대기.
+         * reactContext 초기화 콜백 메소드가 따로 있는지 몰라서 임시로 작업
+         */
+        while (true) {
+          if (MainApplication.isInitReactNative()) {
+            break;
+          }
+        }
+        activity.runOnUiThread(new Runnable() {
+          @Override
+          public void run() {
+            callback.onInit();
+          }
+        });
+
+      }
+    }).start();
+  }
+
+  public interface ReactContextInitCallback {
+    void onInit();
+  }
+
+  @Override
   public void onCreate() {
     super.onCreate();
     instance = this;

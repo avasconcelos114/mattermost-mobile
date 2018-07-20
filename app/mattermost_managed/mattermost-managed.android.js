@@ -37,6 +37,8 @@ export default {
     authenticate: LocalAuth.auth,
     blurAppScreen: MattermostManaged.blurAppScreen,
     getConfig: MattermostManaged.getConfig,
+    getBasInfo: MattermostManaged.getBasInfo,
+
     getLocalConfig: async () => {
         if (!localConfig) {
             try {

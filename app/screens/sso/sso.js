@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 import {WebView} from 'react-native-webview';
 import CookieManager from 'react-native-cookies';
-import urlParse from 'url-parse';
 
 import {Client4} from 'mattermost-redux/client';
 
@@ -63,8 +62,12 @@ class SSO extends PureComponent {
         intl: intlShape.isRequired,
         navigator: PropTypes.object,
         theme: PropTypes.object,
-        serverUrl: PropTypes.string.isRequired,
+        ssoUrl: PropTypes.string,
+        baseUrl: PropTypes.string,
+        serverUrl: PropTypes.string,
         ssoType: PropTypes.string.isRequired,
+        userId: PropTypes.string,
+        epId: PropTypes.string,
         actions: PropTypes.shape({
             getSession: PropTypes.func.isRequired,
             handleSuccessfulLogin: PropTypes.func.isRequired,
@@ -91,6 +94,12 @@ class SSO extends PureComponent {
             this.loginUrl = `${props.serverUrl}/login/sso/saml?action=mobile`;
             this.completedUrl = '/login/sso/saml';
             break;
+        case ViewTypes.BAS:
+            HEADERS.e = props.epId;
+            HEADERS.u = props.userId;
+            this.loginUrl = `${props.ssoUrl}?redirect_to=/`;
+            this.completedUrl = 'www.samsungsmartoffice.net';
+            break;
         }
     }
 
@@ -99,7 +108,7 @@ class SSO extends PureComponent {
     }
 
     clearPreviousCookies = () => {
-        CookieManager.clearAll(true).then(() => {
+        CookieManager.clearAll().then(() => {
             this.setState({renderWebView: true});
         });
     };
@@ -162,7 +171,7 @@ class SSO extends PureComponent {
         };
         const parsed = urlParse(url);
 
-        if (parsed.host.includes('.onelogin.com')) {
+        if (url.includes('.onelogin.com')) {
             nextState.jsCode = oneLoginFormScalingJS;
         } else if (parsed.pathname === this.completedUrl) {
             // To avoid `window.postMessage` conflicts in any of the SSO flows
@@ -175,9 +184,12 @@ class SSO extends PureComponent {
 
     onLoadEnd = (event) => {
         const url = event.nativeEvent.url;
+        console.log('url = ' + url); //eslint-disable-line no-console
+
         if (url.includes(this.completedUrl)) {
-            CookieManager.get(urlParse(url).origin, true).then((res) => {
+            CookieManager.get(this.getServerUrl()).then((res) => {
                 const token = res.MMAUTHTOKEN;
+                console.log('MMAUTHTOKEN = ' + token); //eslint-disable-line no-console
 
                 if (token) {
                     this.setState({renderWebView: false});
@@ -188,7 +200,7 @@ class SSO extends PureComponent {
                     } = this.props.actions;
 
                     Client4.setToken(token);
-                    setStoreFromLocalData({url: Client4.getUrl(), token}).
+                    setStoreFromLocalData({url: this.getServerUrl(), token}).
                         then(handleSuccessfulLogin).
                         then(getSession).
                         then(this.goToLoadTeam).
@@ -203,6 +215,10 @@ class SSO extends PureComponent {
     onLoadEndError = (e) => {
         console.warn('Failed to set store from local data', e); // eslint-disable-line no-console
         this.setState({error: e.message});
+    };
+
+    getServerUrl = () => {
+        return this.props.ssoType === ViewTypes.BAS ? this.props.baseUrl : this.props.serverUrl;
     };
 
     renderLoading = () => {
@@ -238,6 +254,7 @@ class SSO extends PureComponent {
                     onNavigationStateChange={this.onNavigationStateChange}
                     onShouldStartLoadWithRequest={() => true}
                     renderLoading={this.renderLoading}
+                    onMessage={jsCode ? this.onMessage : null}
                     injectedJavaScript={jsCode}
                     onLoadEnd={this.onLoadEnd}
                     onMessage={messagingEnabled && this.onMessage}
