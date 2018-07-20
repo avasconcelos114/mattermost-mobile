@@ -64,6 +64,10 @@ export default class PostTextbox extends PureComponent {
         userIsOutOfOffice: PropTypes.bool.isRequired,
         channelIsArchived: PropTypes.bool,
         onCloseChannel: PropTypes.func,
+
+        //mchat-mobile, block mobile team
+        currentTeam: PropTypes.object,
+        currentChannel: PropTypes.object,
     };
 
     static defaultProps = {
@@ -532,6 +536,10 @@ export default class PostTextbox extends PureComponent {
             rootId,
             theme,
             channelIsArchived,
+
+            //mchat-mobile, block mobile team
+            currentChannel,
+            currentTeam,
         } = this.props;
 
         const style = getStyleSheet(theme);
@@ -565,6 +573,11 @@ export default class PostTextbox extends PureComponent {
             placeholder = {id: t('create_comment.addComment'), defaultMessage: 'Add a comment...'};
         } else {
             placeholder = {id: t('create_post.write'), defaultMessage: 'Write a message...'};
+        }
+
+        //mchat-mobile, block mobile team
+        if (!currentTeam.display_name.endsWith('\u200b') && currentChannel.type !== 'D' && currentChannel.type !== 'G') {
+            return null;
         }
 
         let attachmentButton = null;

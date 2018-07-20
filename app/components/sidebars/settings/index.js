@@ -12,6 +12,9 @@ import {getDimensions} from 'app/selectors/device';
 
 import SettingsSidebar from './settings_sidebar';
 
+//mchat-mobile, block mobile team, setting
+import {getCurrentTeam} from 'mattermost-redux/selectors/entities/teams';
+
 function mapStateToProps(state) {
     const currentUser = getCurrentUser(state) || {};
     const status = getStatusForUserId(state, currentUser.id);
@@ -21,6 +24,9 @@ function mapStateToProps(state) {
         currentUser,
         status,
         theme: getTheme(state),
+
+        //mchat-mobile, block mobile team, setting
+        currentTeam: getCurrentTeam(state),
     };
 }
 
