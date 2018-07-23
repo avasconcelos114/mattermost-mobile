@@ -29,6 +29,7 @@ import DrawerItem from './drawer_item';
 import UserInfo from './user_info';
 import StatusLabel from './status_label';
 
+const IS_LOGOUT_MENU = false;
 const DRAWER_INITIAL_OFFSET = 80;
 
 export default class SettingsDrawer extends PureComponent {
@@ -302,7 +303,7 @@ export default class SettingsDrawer extends PureComponent {
                             />
                         </View>
                         <View style={style.separator}/>
-                        <View style={style.block}>
+                        {IS_LOGOUT_MENU && <View style={style.block}>
                             <DrawerItem
                                 centered={true}
                                 defaultMessage='Logout'
@@ -312,7 +313,7 @@ export default class SettingsDrawer extends PureComponent {
                                 separator={false}
                                 theme={theme}
                             />
-                        </View>
+                        </View>}
                     </ScrollView>
                 </View>
             </SafeAreaView>
