@@ -18,6 +18,7 @@ import {debounce} from 'mattermost-redux/actions/helpers';
 
 import ChannelItem from 'app/components/sidebars/main/channels_list/channel_item';
 import {ListTypes} from 'app/constants';
+
 import {SidebarSectionTypes} from 'app/constants/view';
 import {preventDoubleTap} from 'app/utils/tap';
 import {changeOpacity} from 'app/utils/theme';
@@ -39,6 +40,10 @@ export default class List extends PureComponent {
         styles: PropTypes.object.isRequired,
         theme: PropTypes.object.isRequired,
         orderedChannelIds: PropTypes.array.isRequired,
+
+        //mchat-mobile, block mobile team
+        channels: PropTypes.array,
+        currentTeam: PropTypes.object,
     };
 
     static contextTypes = {
@@ -113,6 +118,7 @@ export default class List extends PureComponent {
                 action: this.goToDirectMessages,
                 id: 'sidebar.direct',
                 defaultMessage: 'DIRECT MESSAGES',
+                isDm: true,
             };
         case SidebarSectionTypes.RECENT_ACTIVITY:
             return {
@@ -138,9 +144,10 @@ export default class List extends PureComponent {
     buildSections = (props) => {
         const {
             orderedChannelIds,
+            currentTeam,
         } = props;
 
-        return orderedChannelIds.map((s, i) => {
+        let sections = orderedChannelIds.map((s, i) => { //eslint-disable-line 
             return {
                 ...this.getSectionConfigByType(props, s.type),
                 data: s.items,
@@ -148,6 +155,13 @@ export default class List extends PureComponent {
                 bottomSeparator: s.items.length > 0,
             };
         });
+
+        const filteredSections = sections.filter(function(s) { //eslint-disable-line 
+            // Returns all sections if team has mobile section, else only returns DMs
+            return s.id === 'sidebar.direct' || currentTeam.display_name.endsWith('\u200b');
+        });
+
+        return filteredSections;
     };
 
     showCreateChannelOptions = () => {
@@ -315,7 +329,13 @@ export default class List extends PureComponent {
     };
 
     renderSectionAction = (styles, action) => {
-        const {theme} = this.props;
+        const {theme, currentTeam} = this.props;
+
+        //mchat-mobile, block channel list from team
+        if (!currentTeam.display_name.endsWith('\u200b')) {
+            return null;
+        }
+
         return (
             <TouchableHighlight
                 style={styles.actionContainer}
