@@ -27,6 +27,8 @@ const AUTOCOMPLETE_MAX_HEIGHT = 200;
 
 let PaperPlane = null;
 
+const IS_LOGOUT_COMMAND = false;
+
 export default class PostTextbox extends PureComponent {
     static propTypes = {
         actions: PropTypes.shape({
@@ -422,6 +424,9 @@ export default class PostTextbox extends PureComponent {
     };
 
     sendCommand = async (msg) => {
+        if (!IS_LOGOUT_COMMAND && msg === '/logout') {
+            return;
+        }
         const {intl} = this.context;
         const {userIsOutOfOffice, actions, channelId, rootId} = this.props;
 
