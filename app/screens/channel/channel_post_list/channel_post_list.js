@@ -39,6 +39,10 @@ export default class ChannelPostList extends PureComponent {
         postIds: PropTypes.array.isRequired,
         postVisibility: PropTypes.number,
         theme: PropTypes.object.isRequired,
+
+        //mchat-mobile, block mobile team
+        channels: PropTypes.array,
+        currentTeam: PropTypes.object,
     };
 
     static defaultProps = {
@@ -173,10 +177,26 @@ export default class ChannelPostList extends PureComponent {
             navigator,
             postIds,
             theme,
+
+            //mchat-mobile, block mobile team
+            channels,
+            currentTeam,
         } = this.props;
 
         const {visiblePostIds} = this.state;
         let component;
+
+        //mchat-mobile, block mobile team
+        if (!currentTeam.display_name.endsWith('\u200b')) {
+            for (let i = 0; i < channels.length; i++) {
+                if (channels[i].id === channelId && channels[i].type !== 'G' && channels[i].type !== 'D') {
+                    const blockString = '이 채널은 모바일에서 조회 할 수 없습니다.';
+                    return (
+                        <Text style={style.threeDayText}>{blockString}</Text>
+                    );
+                }
+            }
+        }
 
         if (!postIds.length && channelRefreshingFailed) {
             component = (
@@ -224,5 +244,6 @@ const style = StyleSheet.create({
         color: 'white',
         fontSize: 15,
         textAlign: 'center',
+        marginTop: 10,
     },
 });

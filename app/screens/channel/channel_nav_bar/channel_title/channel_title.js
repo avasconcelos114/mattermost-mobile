@@ -21,6 +21,11 @@ export default class ChannelTitle extends PureComponent {
         onPress: PropTypes.func,
         theme: PropTypes.object,
         isArchived: PropTypes.bool,
+
+        //mchat-mobile, block mobile team
+        channels: PropTypes.array,
+        currentTeam: PropTypes.object,
+        currentChannelId: PropTypes.string,
     };
 
     static defaultProps = {
@@ -43,7 +48,8 @@ export default class ChannelTitle extends PureComponent {
     }
 
     render() {
-        const {currentChannelName, displayName, isChannelMuted, onPress, theme} = this.props;
+        //mchat-mobile, block mobile team, add props channels, currentTeam and currentChannelId
+        const {currentChannelName, displayName, isChannelMuted, onPress, theme, channels, currentTeam, currentChannelId} = this.props;
         const channelName = displayName || currentChannelName;
         const style = getStyle(theme);
         let icon;
@@ -66,6 +72,21 @@ export default class ChannelTitle extends PureComponent {
                     name='bell-slash-o'
                 />
             );
+        }
+
+        //mchat-mobile, block mobile team
+        if (!currentTeam.display_name.endsWith('\u200b')) {
+            for (let i = 0; i < channels.length; i++) {
+                if (channels[i].id === currentChannelId && channels[i].type !== 'G' && channels[i].type !== 'D') {
+                    return (
+                        <TouchableOpacity
+                            style={style.container}
+                        >
+                            <View style={style.wrapper}/>
+                        </TouchableOpacity>
+                    );
+                }
+            }
         }
 
         return (
