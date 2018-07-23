@@ -6,7 +6,11 @@ import {connect} from 'react-redux';
 
 import {selectPost} from 'mattermost-redux/actions/posts';
 import {getPostIdsInCurrentChannel} from 'mattermost-redux/selectors/entities/posts';
-import {getCurrentChannelId, getMyCurrentChannelMembership} from 'mattermost-redux/selectors/entities/channels';
+
+//mchat-mobile, block post team, add import 'getCurrentTeam' and 'getChannelsInCurrentTeam'
+import {getCurrentChannelId, getMyCurrentChannelMembership, getChannelsInCurrentTeam} from 'mattermost-redux/selectors/entities/channels';
+import {getCurrentTeam} from 'mattermost-redux/selectors/entities/teams';
+
 import {getCurrentUserId} from 'mattermost-redux/selectors/entities/users';
 import {getTheme} from 'mattermost-redux/selectors/entities/preferences';
 
@@ -30,6 +34,10 @@ function mapStateToProps(state) {
         loadMorePostsVisible: state.views.channel.loadMorePostsVisible,
         refreshing: state.views.channel.refreshing,
         theme: getTheme(state),
+
+        //mchat-mobile, block mobile team
+        channels: getChannelsInCurrentTeam(state),
+        currentTeam: getCurrentTeam(state),
     };
 }
 
