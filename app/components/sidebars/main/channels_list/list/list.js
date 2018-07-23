@@ -41,6 +41,10 @@ export default class List extends PureComponent {
         styles: PropTypes.object.isRequired,
         theme: PropTypes.object.isRequired,
         unreadChannelIds: PropTypes.array.isRequired,
+
+        //mchat-mobile, block mobile team
+        channels: PropTypes.array,
+        currentTeam: PropTypes.object,
     };
 
     static contextTypes = {
@@ -88,6 +92,23 @@ export default class List extends PureComponent {
         }
     }
 
+    //mchat-mobile, block mobile team
+    pickBlockedChannels = (channelIdArray, channelList) => {
+        const returnArray = [];
+        for (let i = 0; i < channelIdArray.length; i++) {
+            let isSameId = false;
+            for (let j = 0; j < channelList.length; j++) {
+                if (channelIdArray[i] === channelList[j].id) {
+                    isSameId = true;
+                }
+            }
+            if (!isSameId) {
+                returnArray.push(channelIdArray[i]);
+            }
+        }
+        return returnArray;
+    }
+
     buildSections = (props) => {
         const {
             canCreatePrivateChannels,
@@ -96,26 +117,51 @@ export default class List extends PureComponent {
             publicChannelIds,
             privateChannelIds,
             unreadChannelIds,
+
+            //mchat-mobile, block mobile team
+            channels,
+            currentTeam,
         } = props;
         const sections = [];
 
-        if (unreadChannelIds.length) {
+        //mchat-mobile, block mobile team
+        let newDirectChannelIds;
+        let newFavoriteChannelIds;
+        let newPublicChannelIds;
+        let newPrivateChannelIds;
+        let newUnreadChannelIds;
+        if (currentTeam.display_name.endsWith('\u200b')) {
+            newDirectChannelIds = directChannelIds;
+            newFavoriteChannelIds = favoriteChannelIds;
+            newPrivateChannelIds = privateChannelIds;
+            newPublicChannelIds = publicChannelIds;
+            newUnreadChannelIds = unreadChannelIds;
+        } else {
+            newDirectChannelIds = this.pickBlockedChannels(directChannelIds, channels);
+            newFavoriteChannelIds = this.pickBlockedChannels(favoriteChannelIds, channels);
+            newPrivateChannelIds = this.pickBlockedChannels(privateChannelIds, channels);
+            newPublicChannelIds = this.pickBlockedChannels(publicChannelIds, channels);
+            newUnreadChannelIds = this.pickBlockedChannels(unreadChannelIds, channels);
+        }
+
+        //mchat-mobile, block mobile team, change all somethingChannelIds -> newSomethingChannelIds
+        if (newUnreadChannelIds.length) {
             sections.push({
                 id: t('mobile.channel_list.unreads'),
                 defaultMessage: 'UNREADS',
-                data: unreadChannelIds,
+                data: newUnreadChannelIds,
                 renderItem: this.renderUnreadItem,
                 topSeparator: false,
                 bottomSeparator: true,
             });
         }
 
-        if (favoriteChannelIds.length) {
+        if (newFavoriteChannelIds.length) {
             sections.push({
                 id: t('sidebar.favorite'),
                 defaultMessage: 'FAVORITES',
-                data: favoriteChannelIds,
-                topSeparator: unreadChannelIds.length > 0,
+                data: newFavoriteChannelIds,
+                topSeparator: newUnreadChannelIds.length > 0,
                 bottomSeparator: true,
             });
         }
@@ -124,27 +170,27 @@ export default class List extends PureComponent {
             action: this.goToMoreChannels,
             id: t('sidebar.channels'),
             defaultMessage: 'PUBLIC CHANNELS',
-            data: publicChannelIds,
-            topSeparator: favoriteChannelIds.length > 0 || unreadChannelIds.length > 0,
-            bottomSeparator: publicChannelIds.length > 0,
+            data: newPublicChannelIds,
+            topSeparator: newFavoriteChannelIds.length > 0 || newUnreadChannelIds.length > 0,
+            bottomSeparator: newPublicChannelIds.length > 0,
         });
 
         sections.push({
             action: canCreatePrivateChannels ? this.goToCreatePrivateChannel : null,
             id: t('sidebar.pg'),
             defaultMessage: 'PRIVATE CHANNELS',
-            data: privateChannelIds,
+            data: newPrivateChannelIds,
             topSeparator: true,
-            bottomSeparator: privateChannelIds.length > 0,
+            bottomSeparator: newPrivateChannelIds.length > 0,
         });
 
         sections.push({
             action: this.goToDirectMessages,
             id: t('sidebar.direct'),
             defaultMessage: 'DIRECT MESSAGES',
-            data: directChannelIds,
+            data: newDirectChannelIds,
             topSeparator: true,
-            bottomSeparator: directChannelIds.length > 0,
+            bottomSeparator: newDirectChannelIds.length > 0,
         });
 
         return sections;
@@ -233,7 +279,13 @@ export default class List extends PureComponent {
     };
 
     renderSectionAction = (styles, action) => {
-        const {theme} = this.props;
+        const {theme, currentTeam} = this.props;
+
+        //mchat-mobile, block channel list from team
+        if (!currentTeam.display_name.endsWith('\u200b')) {
+            return null;
+        }
+
         return (
             <TouchableHighlight
                 style={styles.actionContainer}

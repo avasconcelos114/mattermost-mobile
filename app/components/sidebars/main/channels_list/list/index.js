@@ -4,15 +4,19 @@
 import {connect} from 'react-redux';
 
 import {General} from 'mattermost-redux/constants';
+
+//mchat-mobile, block mobile team, add import getChannelsInCurrentTeam and getCurrentTeam
+import {getCurrentTeamId, getCurrentTeam} from 'mattermost-redux/selectors/entities/teams';
 import {
     getSortedUnreadChannelIds,
     getSortedFavoriteChannelIds,
     getSortedPublicChannelIds,
     getSortedPrivateChannelIds,
     getSortedDirectChannelIds,
+    getChannelsInCurrentTeam,
 } from 'mattermost-redux/selectors/entities/channels';
 import {getCurrentUserId, getCurrentUserRoles} from 'mattermost-redux/selectors/entities/users';
-import {getCurrentTeamId} from 'mattermost-redux/selectors/entities/teams';
+
 import {getTheme, getFavoritesPreferences} from 'mattermost-redux/selectors/entities/preferences';
 import {showCreateOption} from 'mattermost-redux/utils/channel_utils';
 import {isAdmin as checkIsAdmin, isSystemAdmin as checkIsSystemAdmin} from 'mattermost-redux/utils/user_utils';
@@ -42,6 +46,10 @@ function mapStateToProps(state) {
         privateChannelIds,
         directChannelIds,
         theme: getTheme(state),
+
+        //mchat-mobile, block mobile team
+        channels: getChannelsInCurrentTeam(state),
+        currentTeam: getCurrentTeam(state),
     };
 }
 
