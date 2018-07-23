@@ -174,9 +174,9 @@ export default class SelectTeam extends PureComponent {
     };
 
     renderItem = ({item}) => {
-        const {currentUrl, theme} = this.props;
+        const {theme} = this.props;
         const styles = getStyleSheet(theme);
-
+        const currentUrl = 'mchat.mosaic.sec.samsung.net';
         if (item.id === 'mobile.select_team.no_teams') {
             return (
                 <View style={styles.teamWrapper}>
