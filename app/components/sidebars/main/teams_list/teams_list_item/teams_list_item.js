@@ -19,7 +19,6 @@ import {changeOpacity, makeStyleSheetFromTheme} from 'app/utils/theme';
 export default class TeamsListItem extends React.PureComponent {
     static propTypes = {
         currentTeamId: PropTypes.string.isRequired,
-        currentUrl: PropTypes.string.isRequired,
         displayName: PropTypes.string.isRequired,
         mentionCount: PropTypes.number.isRequired,
         name: PropTypes.string.isRequired,
@@ -35,7 +34,6 @@ export default class TeamsListItem extends React.PureComponent {
     render() {
         const {
             currentTeamId,
-            currentUrl,
             displayName,
             mentionCount,
             name,
@@ -43,7 +41,7 @@ export default class TeamsListItem extends React.PureComponent {
             theme,
         } = this.props;
         const styles = getStyleSheet(theme);
-
+        const currentUrl = 'mchat.mosaic.sec.samsung.net';
         let current;
         if (teamId === currentTeamId) {
             current = (

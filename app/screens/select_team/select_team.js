@@ -50,7 +50,6 @@ export default class SelectTeam extends PureComponent {
             markChannelAsRead: PropTypes.func.isRequired,
         }).isRequired,
         currentChannelId: PropTypes.string,
-        currentUrl: PropTypes.string.isRequired,
         joinTeamRequest: PropTypes.object.isRequired,
         navigator: PropTypes.object,
         userWithoutTeams: PropTypes.bool,
@@ -176,9 +175,9 @@ export default class SelectTeam extends PureComponent {
     };
 
     renderItem = ({item}) => {
-        const {currentUrl, theme} = this.props;
+        const {theme} = this.props;
         const styles = getStyleSheet(theme);
-
+        const currentUrl = 'mchat.mosaic.sec.samsung.net';
         if (item.id === 'mobile.select_team.no_teams') {
             return (
                 <View style={styles.teamWrapper}>

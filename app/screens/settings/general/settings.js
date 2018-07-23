@@ -218,7 +218,7 @@ class Settings extends PureComponent {
         const {config, joinableTeams, theme} = this.props;
         const style = getStyleSheet(theme);
         const showTeams = Object.keys(joinableTeams).length > 0;
-        const showHelp = isValidUrl(config.HelpLink);
+        const showHelp = isValidUrl(config.HelpLink); // eslint-disable-line
         const showArrow = Platform.OS === 'ios';
 
         return (
@@ -258,7 +258,7 @@ class Settings extends PureComponent {
                         theme={theme}
                     />
                     }
-                    {showHelp &&
+                    {/* {showHelp &&
                     <SettingsItem
                         defaultMessage='Help'
                         i18nId={t('mobile.help.title')}
@@ -277,7 +277,7 @@ class Settings extends PureComponent {
                         onPress={this.openErrorEmail}
                         showArrow={showArrow}
                         theme={theme}
-                    />
+                    />*/}
                     <SettingsItem
                         defaultMessage='Advanced Settings'
                         i18nId={t('mobile.advanced_settings.title')}
