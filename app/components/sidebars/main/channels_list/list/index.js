@@ -4,6 +4,9 @@
 import {connect} from 'react-redux';
 
 import {General} from 'mattermost-redux/constants';
+
+//mchat-mobile, block mobile team, add import getChannelsInCurrentTeam and getCurrentTeam
+import {getCurrentTeamId, getCurrentTeam} from 'mattermost-redux/selectors/entities/teams';
 import {
     getSortedFavoriteChannelIds,
     getSortedUnreadChannelIds,
@@ -63,6 +66,10 @@ function mapStateToProps(state) {
         theme: getTheme(state),
         unreadChannelIds,
         orderedChannelIds,
+
+        //mchat-mobile, block mobile team
+        channels: getChannelsInCurrentTeam(state),
+        currentTeam: getCurrentTeam(state),
     };
 }
 

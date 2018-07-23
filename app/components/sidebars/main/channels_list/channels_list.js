@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import {
     Platform,
     View,
+    Text,
 } from 'react-native';
 import {intlShape} from 'react-intl';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
@@ -30,6 +31,9 @@ export default class ChannelsList extends PureComponent {
         onShowTeams: PropTypes.func.isRequired,
         theme: PropTypes.object.isRequired,
         drawerOpened: PropTypes.bool,
+
+        //mchat-mobile, block mobile team
+        currentTeam: PropTypes.object,
     };
 
     static contextTypes = {
@@ -91,6 +95,9 @@ export default class ChannelsList extends PureComponent {
             navigator,
             onShowTeams,
             theme,
+
+            //mchat-mobile, block mobile team
+            currentTeam,
         } = this.props;
 
         const {searching, term} = this.state;
@@ -126,7 +133,8 @@ export default class ChannelsList extends PureComponent {
             }),
         };
 
-        const title = (
+        //mchat-mobile, block mobile team, change "const title" -> "let title"
+        let title = (
             <View style={styles.searchContainer}>
                 <SearchBar
                     ref='search_bar'
@@ -253,6 +261,20 @@ const getStyleSheet = makeStyleSheetFromTheme((theme) => {
         above: {
             backgroundColor: theme.mentionBg,
             top: 9,
+        },
+
+        //mchat-mobile, block mobile team
+        blockedTeamText: {
+            flex: 1,
+            color: theme.sidebarText,
+            opacity: 1,
+            fontSize: 16,
+            textAlign: 'center',
+            fontWeight: '400',
+            letterSpacing: 0.8,
+            lineHeight: 18,
+            marginTop: 5,
+            marginBottom: 5,
         },
     };
 });
