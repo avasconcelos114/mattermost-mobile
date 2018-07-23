@@ -3,7 +3,10 @@
 
 import {connect} from 'react-redux';
 
-import {getCurrentChannel, getMyCurrentChannelMembership} from 'mattermost-redux/selectors/entities/channels';
+//mchat-mobile, block mobile team, add import getChannelsInCurrentTeam, getCurrentChannelId and getCurrentTeam
+import {getCurrentTeam} from 'mattermost-redux/selectors/entities/teams';
+import {getCurrentChannel, getMyCurrentChannelMembership, getCurrentChannelId, getChannelsInCurrentTeam} from 'mattermost-redux/selectors/entities/channels';
+
 import {getTheme} from 'mattermost-redux/selectors/entities/preferences';
 import {isChannelMuted} from 'mattermost-redux/utils/channel_utils';
 
@@ -19,6 +22,11 @@ function mapStateToProps(state) {
         displayName: state.views.channel.displayName,
         isChannelMuted: isChannelMuted(myChannelMember),
         theme: getTheme(state),
+
+        //mchat-mobile, block mobile team
+        channels: getChannelsInCurrentTeam(state),
+        currentTeam: getCurrentTeam(state),
+        currentChannelId: getCurrentChannelId(state),
     };
 }
 
