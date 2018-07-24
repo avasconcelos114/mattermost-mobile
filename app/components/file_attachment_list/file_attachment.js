@@ -55,29 +55,34 @@ export default class FileAttachment extends PureComponent {
         const {data} = file;
         const style = getStyleSheet(theme);
 
+        //mchat-mobile, block-pdf
         if (!data || !data.id) {
             return null;
-        } else if (data.mime_type === 'application/pdf') {
-            //mchat-mobile, block-pdf
-            const pdfBlockText = '모바일에서는 PDF파일을 볼 수 없습니다.';
-            return (
-                <View style={style.attachmentContainer}>
-                    <Text
-                        numberOfLines={2}
-                        ellipsizeMode='tail'
-                        style={style.fileName}
-                    >
-                        {file.caption.trim()}
-                    </Text>
-                    <Text
-                        numberOfLines={2}
-                        ellipsizeMode='tail'
-                        style={style.fileInfo}
-                    >
-                        {pdfBlockText}
-                    </Text>
-                </View>
-            );
+        } else if (data || data.id) {
+            const extensionList = ['doc', 'docx', 'ppt', 'pptx', 'xlsx', 'xls', 'pdf', 'hwp'];
+            for (let i = 0; i < extensionList.length; i++) {
+                if (extensionList[i] === data.extension) {
+                    const pdfBlockText = '모바일에서는 열 수 없는 확장자 입니다. : ' + data.extension;
+                    return (
+                        <View style={style.attachmentContainer}>
+                            <Text
+                                numberOfLines={2}
+                                ellipsizeMode='tail'
+                                style={style.fileName}
+                            >
+                                {file.caption.trim()}
+                            </Text>
+                            <Text
+                                numberOfLines={2}
+                                ellipsizeMode='tail'
+                                style={style.fileInfo}
+                            >
+                                {pdfBlockText}
+                            </Text>
+                        </View>
+                    );
+                }
+            }
         }
 
         return (
@@ -120,7 +125,7 @@ export default class FileAttachment extends PureComponent {
         let fileAttachmentComponent;
 
         //Mchat-mobile, block-pdf
-        if (data && data.mime_type && data.mime_type === 'application/pdf') {
+        if (data && (data.extension === 'pdf' || data.extension === 'doc' || data.extension === 'docx' || data.extension === 'ppt' || data.extension === 'pptx' || data.extension === 'xlsx' || data.extension === 'xls' || data.extension === 'hwp')) {
             fileAttachmentComponent = null;
         } else if ((data && data.has_preview_image) || file.loading || isGif(data)) {
             fileAttachmentComponent = (
