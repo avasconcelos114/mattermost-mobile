@@ -7,8 +7,9 @@ import {
     FlatList,
     Platform,
     StatusBar,
-    Text,
-    TouchableHighlight,
+
+    //Text,
+    //TouchableHighlight,
     View,
 } from 'react-native';
 import {intlShape} from 'react-intl';
@@ -112,7 +113,10 @@ export default class TeamsList extends PureComponent {
         const {teamIds, theme} = this.props;
         const styles = getStyleSheet(theme);
 
-        const moreAction = (
+        //mchat-mobile, block team list
+        const moreAction = null;
+
+        /*const moreAction = (
             <TouchableHighlight
                 style={styles.moreActionContainer}
                 onPress={this.goToSelectTeam}
@@ -124,7 +128,7 @@ export default class TeamsList extends PureComponent {
                     {'+'}
                 </Text>
             </TouchableHighlight>
-        );
+        );*/
 
         return (
             <View style={styles.container}>

@@ -64,6 +64,11 @@ export default class TeamsListItem extends React.PureComponent {
             />
         );
 
+        //mchat-mobile, block team list
+        if (!displayName.endsWith('\u200b')) {
+            return null;
+        }
+
         return (
             <View style={styles.teamWrapper}>
                 <TouchableHighlight
