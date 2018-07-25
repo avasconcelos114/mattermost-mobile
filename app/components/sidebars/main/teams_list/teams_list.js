@@ -7,8 +7,9 @@ import {
     FlatList,
     Platform,
     StatusBar,
-    Text,
-    TouchableHighlight,
+
+    //Text,
+    //TouchableHighlight,
     View,
 } from 'react-native';
 import {intlShape} from 'react-intl';
@@ -113,22 +114,22 @@ export default class TeamsList extends PureComponent {
         const {hasOtherJoinableTeams, teamIds, theme} = this.props;
         const styles = getStyleSheet(theme);
 
-        let moreAction;
-        if (hasOtherJoinableTeams) {
-            moreAction = (
-                <TouchableHighlight
-                    style={styles.moreActionContainer}
-                    onPress={this.goToSelectTeam}
-                    underlayColor={changeOpacity(theme.sidebarHeaderBg, 0.5)}
+        //mchat-mobile, block team list
+        const moreAction = null;
+
+        /*const moreAction = (
+            <TouchableHighlight
+                style={styles.moreActionContainer}
+                onPress={this.goToSelectTeam}
+                underlayColor={changeOpacity(theme.sidebarHeaderBg, 0.5)}
+            >
+                <Text
+                    style={styles.moreAction}
                 >
-                    <Text
-                        style={styles.moreAction}
-                    >
-                        {'+'}
-                    </Text>
-                </TouchableHighlight>
-            );
-        }
+                    {'+'}
+                </Text>
+            </TouchableHighlight>
+        );*/
 
         return (
             <View style={styles.container}>
