@@ -64,7 +64,7 @@ export default class App {
         // Usage deeplinking
         Linking.addEventListener('url', this.handleDeepLink);
         this.setFontFamily();
-        
+
         // SSO
         this.isBasLogin = false;
         this.userId = null;
