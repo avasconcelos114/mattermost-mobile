@@ -2,6 +2,7 @@ package com.mattermost.rnbeta.sso;
 
 import android.annotation.SuppressLint;
 import android.app.Service;
+import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -119,6 +120,10 @@ public class RouteManager {
         } catch (SecurityException e) {
             mIsBound = false;
             mBindCallback.onError("Failed to bind service by security issue");
+
+        } catch (ActivityNotFoundException e) {
+            mIsBound = false;
+            mBindCallback.onError("BAS is not installed Please Install the BAS.");
         }
     }
 
