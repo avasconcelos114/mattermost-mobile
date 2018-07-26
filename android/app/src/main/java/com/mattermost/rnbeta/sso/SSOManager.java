@@ -82,7 +82,8 @@ public final class SSOManager {
             context.bindService(intent, conn, Context.BIND_AUTO_CREATE);
 
         } catch (Exception e) {
-            mBindCallback.onError("Could not found com.sds.BizAppLauncher.");
+            isBound = false;
+            mBindCallback.onError("BAS is not installed Please Install the BAS.");
         }
     }
 
