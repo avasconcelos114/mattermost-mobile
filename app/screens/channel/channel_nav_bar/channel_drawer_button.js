@@ -20,7 +20,9 @@ import {preventDoubleTap} from 'app/utils/tap';
 import {makeStyleSheetFromTheme} from 'app/utils/theme';
 
 import {getUnreadsInCurrentTeam} from 'mattermost-redux/selectors/entities/channels';
-import {getCurrentTeamId, getTeamMemberships} from 'mattermost-redux/selectors/entities/teams';
+
+//mchat-mobile, delete mention count for blocked team, add import getMyTeams
+import {getCurrentTeamId, getTeamMemberships, getMyTeams} from 'mattermost-redux/selectors/entities/teams';
 import EventEmitter from 'mattermost-redux/utils/event_emitter';
 
 class ChannelDrawerButton extends PureComponent {
@@ -31,6 +33,9 @@ class ChannelDrawerButton extends PureComponent {
         mentionCount: PropTypes.number,
         myTeamMembers: PropTypes.object,
         theme: PropTypes.object,
+
+        //mchat-mobile, delete mention count for blocked team
+        teams: PropTypes.array,
     };
 
     static defaultProps = {
@@ -86,6 +91,9 @@ class ChannelDrawerButton extends PureComponent {
             messageCount,
             myTeamMembers,
             theme,
+
+            //mchat-mobile, delete mention count for blocked team
+            teams,
         } = this.props;
         const style = getStyleFromTheme(theme);
 
@@ -93,7 +101,21 @@ class ChannelDrawerButton extends PureComponent {
         let messages = messageCount;
 
         const members = Object.values(myTeamMembers).filter((m) => m.team_id !== currentTeamId);
-        members.forEach((m) => {
+
+        //mchat-mobile, delete mention count for blocked team
+        const newMembers = [];
+        for (let i = 0; i < teams.length; i++) {
+            if (teams[i].display_name.endsWith('\u200b')) {
+                for (let j = 0; j < members.length; j++) {
+                    if (members[j].team_id === teams[i].id) {
+                        newMembers.push(members[j]);
+                    }
+                }
+            }
+        }
+
+        //mchat-mobile, delete mention count for blocked team, change members -> newMembers
+        newMembers.forEach((m) => {
             mentions = mentions + (m.mention_count || 0);
             messages = messages + (m.msg_count || 0);
         });
@@ -186,6 +208,9 @@ function mapStateToProps(state) {
         myTeamMembers: getTeamMemberships(state),
         theme: getTheme(state),
         ...getUnreadsInCurrentTeam(state),
+
+        //mchat-mobile, delete mention count for blocked team
+        teams: getMyTeams(state),
     };
 }
 
