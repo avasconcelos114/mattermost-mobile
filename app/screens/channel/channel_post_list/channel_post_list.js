@@ -17,6 +17,10 @@ import RetryBarIndicator from 'app/components/retry_bar_indicator';
 import {ViewTypes} from 'app/constants';
 import tracker from 'app/utils/time_tracker';
 
+//mchat-mobile, block mobile team
+import {intlShape} from 'react-intl';
+import {makeStyleSheetFromTheme} from 'app/utils/theme';
+
 let ChannelIntro = null;
 let LoadMorePosts = null;
 
@@ -44,6 +48,11 @@ export default class ChannelPostList extends PureComponent {
         //mchat-mobile, block mobile team
         channels: PropTypes.array,
         currentTeam: PropTypes.object,
+    };
+
+    //mchat-mobile, block mobile team
+    static contextTypes = {
+        intl: intlShape.isRequired,
     };
 
     static defaultProps = {
@@ -131,6 +140,10 @@ export default class ChannelPostList extends PureComponent {
     };
 
     renderFooter = () => {
+        //mchat-mobile, block mobile team
+        const {intl} = this.context;
+        const styles = getStyleSheet(this.props.theme);
+
         if (!this.props.channelId) {
             return null;
         }
@@ -141,8 +154,6 @@ export default class ChannelPostList extends PureComponent {
             }
 
             //mchat-mobile, block-3days-old-post, text style added
-            const threeDayBlockString = '작성한 후 3일이 지난 글은 모바일에서 볼 수 없습니다.';
-
             return (
                 <View>
                     <LoadMorePosts
@@ -150,7 +161,12 @@ export default class ChannelPostList extends PureComponent {
                         loadMore={this.loadMorePosts}
                         theme={this.props.theme}
                     />
-                    <Text style={style.threeDayText}>{threeDayBlockString}</Text>
+                    <Text style={styles.threeDayText}>
+                        {intl.formatMessage({
+                            id: 'intro_messages.limitedDate',
+                            defaultMessage: 'Can\'t see the post that made more than 3 days ago.',
+                        })}
+                    </Text>
                 </View>
             );
         }
@@ -185,16 +201,32 @@ export default class ChannelPostList extends PureComponent {
             currentTeam,
         } = this.props;
 
-        const {visiblePostIds} = this.state;
+        //mchat-mobile, block mobile team
+        const {intl} = this.context;
+        const styles = getStyleSheet(theme);
+
+        const {
+            visiblePostIds,
+            loading,
+        } = this.state;
+
+        if (loading) {
+            return null;
+        }
+
         let component;
 
         //mchat-mobile, block mobile team
         if (!currentTeam.display_name.endsWith('\u200b')) {
             for (let i = 0; i < channels.length; i++) {
                 if (channels[i].id === channelId && channels[i].type !== 'G' && channels[i].type !== 'D') {
-                    const blockString = '이 채널은 모바일에서 조회 할 수 없습니다.';
                     return (
-                        <Text style={style.threeDayText}>{blockString}</Text>
+                        <Text style={styles.threeDayText}>
+                            {intl.formatMessage({
+                                id: 'mchat.block.channel.post',
+                                defaultMessage: 'Can\'t see this channel in the mobile.',
+                            })}
+                        </Text>
                     );
                 }
             }
@@ -249,4 +281,16 @@ const style = StyleSheet.create({
         textAlign: 'center',
         marginTop: 10,
     },
+});
+
+//mchat-mobile, block-3days-old-post, added style
+const getStyleSheet = makeStyleSheetFromTheme((theme) => {
+    return {
+        threeDayText: {
+            color: theme.centerChannelColor,
+            fontSize: 15,
+            textAlign: 'center',
+            marginTop: 10,
+        },
+    };
 });
