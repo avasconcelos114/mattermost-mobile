@@ -18,6 +18,9 @@ import FileAttachmentDocument from './file_attachment_document';
 import FileAttachmentIcon from './file_attachment_icon';
 import FileAttachmentImage from './file_attachment_image';
 
+//mchat-mobile, pdf preview
+import {intlShape} from 'react-intl';
+
 export default class FileAttachment extends PureComponent {
     static propTypes = {
         canDownloadFiles: PropTypes.bool.isRequired,
@@ -28,6 +31,11 @@ export default class FileAttachment extends PureComponent {
         onPreviewPress: PropTypes.func,
         theme: PropTypes.object.isRequired,
         navigator: PropTypes.object,
+    };
+
+    //mchat-mobile, pdf preview
+    static contextTypes = {
+        intl: intlShape.isRequired,
     };
 
     static defaultProps = {
@@ -56,13 +64,15 @@ export default class FileAttachment extends PureComponent {
         const style = getStyleSheet(theme);
 
         //mchat-mobile, block-pdf
+        const {intl} = this.context;
+
+        //mchat-mobile, block-pdf
         if (!data || !data.id) {
             return null;
         } else if (data || data.id) {
             const extensionList = ['doc', 'docx', 'ppt', 'pptx', 'xlsx', 'xls', 'pdf', 'hwp'];
             for (let i = 0; i < extensionList.length; i++) {
                 if (extensionList[i] === data.extension) {
-                    const pdfBlockText = '모바일에서는 열 수 없는 확장자 입니다. : ' + data.extension;
                     return (
                         <View style={style.attachmentContainer}>
                             <Text
@@ -77,7 +87,10 @@ export default class FileAttachment extends PureComponent {
                                 ellipsizeMode='tail'
                                 style={style.fileInfo}
                             >
-                                {pdfBlockText}
+                                {intl.formatMessage({
+                                    id: 'mchat.block.channel.preview',
+                                    defaultMessage: 'Can\'t open this extension file in mobile : ',
+                                })}
                             </Text>
                         </View>
                     );

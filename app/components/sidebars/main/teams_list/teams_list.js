@@ -11,6 +11,7 @@ import {
     //Text,
     //TouchableHighlight,
     View,
+    Text,
 } from 'react-native';
 import {intlShape} from 'react-intl';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
@@ -115,6 +116,7 @@ export default class TeamsList extends PureComponent {
 
         //mchat-mobile, block team list
         const moreAction = null;
+        const {intl} = this.context;
 
         /*const moreAction = (
             <TouchableHighlight
@@ -129,7 +131,16 @@ export default class TeamsList extends PureComponent {
                 </Text>
             </TouchableHighlight>
         );*/
+        const noticeText = (
+            <Text style={styles.noticeText}>
+                {intl.formatMessage({
+                    id: 'mchat.block.team.team.item',
+                    defaultMessage: 'Not displaying blocked team',
+                })}
+            </Text>
+        );
 
+        //mchat-mobile, block team list, add test for notice
         return (
             <View style={styles.container}>
                 <View style={styles.statusBar}>
@@ -142,6 +153,7 @@ export default class TeamsList extends PureComponent {
                         {moreAction}
                     </View>
                 </View>
+                {noticeText}
                 <FlatList
                     data={teamIds}
                     renderItem={this.renderItem}
@@ -200,6 +212,14 @@ const getStyleSheet = makeStyleSheetFromTheme((theme) => {
         moreAction: {
             color: theme.sidebarHeaderTextColor,
             fontSize: 30,
+        },
+
+        //mchat-mobile, block team list
+        noticeText: {
+            color: theme.sidebarHeaderTextColor,
+            fontSize: 15,
+            textAlign: 'center',
+            marginTop: 4,
         },
     };
 });
