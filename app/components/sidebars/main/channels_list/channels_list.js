@@ -149,6 +149,26 @@ export default class ChannelsList extends PureComponent {
             </View>
         );
 
+        //mchat-mobile, block mobile team
+        if (!currentTeam.display_name.endsWith('\u200b')) {
+            title = (
+                <Text style={styles.blockedTeamText}>
+                    {intl.formatMessage({
+                        id: 'mchat.block.search.team',
+                        defaultMessage: 'This team is unallowed.',
+                    })}
+                </Text>
+            );
+            list = (
+                <Text style={styles.blockedTeamText}>
+                    {intl.formatMessage({
+                        id: 'mchat.block.channel.list.please',
+                        defaultMessage: 'Please, apply for permission to manager.',
+                    })}
+                </Text>
+            );
+        }
+
         return (
             <View
                 style={styles.container}

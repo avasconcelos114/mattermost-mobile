@@ -22,6 +22,9 @@ export default class ChannelSearchButton extends PureComponent {
         }).isRequired,
         navigator: PropTypes.object,
         theme: PropTypes.object,
+
+        //mchat-mobile, block mobile team
+        currentTeam: PropTypes.object,
     };
 
     handlePress = preventDoubleTap(async () => {
@@ -45,9 +48,17 @@ export default class ChannelSearchButton extends PureComponent {
     render() {
         const {
             theme,
+
+            //mchat-mobile, block mobile team
+            currentTeam,
         } = this.props;
 
         const style = getStyle(theme);
+
+        //mchat-mobile, block mobile team
+        if (!currentTeam.display_name.endsWith('\u200b')) {
+            return null;
+        }
 
         return (
             <View style={style.container}>

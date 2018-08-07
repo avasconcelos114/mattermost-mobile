@@ -526,5 +526,12 @@
   "user.settings.push_notification.disabled_long": "시스템 관리자가 메일알림을 비활성화하였습니다.",
   "user.settings.push_notification.offline": "오프라인",
   "user.settings.push_notification.online": "온라인, 오프라인, 자리비움",
-  "web.root.signup_info": "모든 팀 커뮤니케이션 활동을 한 곳에 모아 빠르게 찾고 공유할 수 있습니다."
+  "web.root.signup_info": "모든 팀 커뮤니케이션 활동을 한 곳에 모아 빠르게 찾고 공유할 수 있습니다.",
+  "mchat.block.search.3days": "3일 이전의 메시지와 모바일에서 허용되지 않은 팀은 검색할 수 없습니다.",
+  "mchat.block.search.team": "모바일에서 허가되지 않은 팀입니다.",
+  "mchat.block.search.unallowed": "개인 메시지만 사용 가능합니다.",
+  "mchat.block.channel.post": "이 채널은 모바일에서 조회 할 수 없습니다.",
+  "mchat.block.channel.preview": "모바일에서는 열 수 없는 확장자 입니다",
+  "mchat.block.channel.list.please": "관리자에게 모바일 허가를 신청해 주세요.",
+  "mchat.block.team.team.item": "모바일에서 허가되지 않은 팀은 표시되지 않습니다."
 }

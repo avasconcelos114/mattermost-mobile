@@ -51,6 +51,15 @@ export function selectDefaultTeam() {
             defaultTeam = teams.find((t) => t.name === ExperimentalPrimaryTeam.toLowerCase());
         }
 
+        //mchat-mobile, pick first unblocked team
+        const sortedTeams = Object.values(teams).sort((a, b) => a.display_name.localeCompare(b.display_name));
+        for (let i = 0; i < teams.length; i++) {
+            if (sortedTeams[i].display_name.endsWith('\u200b')) {
+                defaultTeam = sortedTeams[i];
+                i = teams.length;
+            }
+        }
+
         if (!defaultTeam) {
             defaultTeam = Object.values(teams).sort((a, b) => a.display_name.localeCompare(b.display_name))[0];
         }

@@ -10,6 +10,14 @@ import {handlePostDraftChanged} from 'app/actions/views/channel';
 
 import ChannelSearchButton from './channel_search_button';
 
+//mchat-mobile, block mobile team, add import getCurrentTeam, add mapStateToProps
+import {getCurrentTeam} from 'mattermost-redux/selectors/entities/teams';
+function mapStateToProps(state) {
+    return {
+        currentTeam: getCurrentTeam(state),
+    };
+}
+
 function mapDispatchToProps(dispatch) {
     return {
         actions: bindActionCreators({
@@ -19,4 +27,4 @@ function mapDispatchToProps(dispatch) {
     };
 }
 
-export default connect(null, mapDispatchToProps)(ChannelSearchButton);
+export default connect(mapStateToProps, mapDispatchToProps)(ChannelSearchButton);
