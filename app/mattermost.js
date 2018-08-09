@@ -491,8 +491,6 @@ const getInfoFromBAS = (receiveBasInfo) => {
     }
 };
 
-DeviceEventEmitter.addListener('managedInfoFromBAS', getInfoFromBAS);
-
 const launch = () => {
     const startedSharedExtension = Platform.OS === 'android' && MattermostShare.isOpened;
     const fromPushNotification = Platform.OS === 'android' && Initialization.replyFromPushNotification;
@@ -512,3 +510,9 @@ const launch = () => {
         launchEntry();
     }
 };
+
+if (IS_BAS_LOGIN) {
+    DeviceEventEmitter.addListener('managedInfoFromBAS', getInfoFromBAS);
+} else {
+    launch();
+}

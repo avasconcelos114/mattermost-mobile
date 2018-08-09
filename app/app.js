@@ -312,8 +312,8 @@ export default class App {
         }
 
         console.log('start screen = ' + screen); //eslint-disable-line no-console
-        console.log('MMAUTHTOKEN = ' + this.token); //eslint-disable-line no-console
-        console.log('MMAUTHTOKEN = ' + this.token); //eslint-disable-line no-console
+        console.log('start url = ' + this.url); //eslint-disable-line no-console
+        console.log('start token = ' + this.token); //eslint-disable-line no-console
 
         switch (screen) {
         case 'Bas':

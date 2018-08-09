@@ -531,6 +531,7 @@
   "mchat.block.search.team": "모바일에서 허가되지 않은 팀입니다.",
   "mchat.block.search.unallowed": "개인 메시지만 사용 가능합니다.",
   "mchat.block.channel.post": "이 채널은 모바일에서 조회 할 수 없습니다.",
+  "mchat.block.channel.private.post": "개인/그룹 메시지는 허가된 팀에서만 볼 수 있습니다.",
   "mchat.block.channel.preview": "모바일에서는 열 수 없는 확장자 입니다",
   "mchat.block.channel.list.please": "관리자에게 모바일 허가를 신청해 주세요.",
   "mchat.block.team.team.item": "모바일에서 허가되지 않은 팀은 표시되지 않습니다."
