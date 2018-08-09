@@ -219,17 +219,33 @@ export default class ChannelPostList extends PureComponent {
         //mchat-mobile, block mobile team
         if (!currentTeam.display_name.endsWith('\u200b')) {
             for (let i = 0; i < channels.length; i++) {
-                if (channels[i].id === channelId && channels[i].type !== 'G' && channels[i].type !== 'D') {
+                if (channels[i].id === channelId && (channels[i].type === 'G' || channels[i].type === 'D')) {
                     return (
-                        <Text style={styles.threeDayText}>
-                            {intl.formatMessage({
-                                id: 'mchat.block.channel.post',
-                                defaultMessage: 'Can\'t see this channel in the mobile.',
-                            })}
-                        </Text>
+                        <View>
+                            <Text style={styles.threeDayText}>
+                                {intl.formatMessage({
+                                    id: 'mchat.block.channel.post',
+                                    defaultMessage: 'Can\'t see this channel in the mobile.',
+                                })}
+                            </Text>
+                            <Text style={styles.threeDayText}>
+                                {intl.formatMessage({
+                                    id: 'mchat.block.channel.private.post',
+                                    defaultMessage: 'You can see the Private/Group message only in the mobile allowed team.',
+                                })}
+                            </Text>
+                        </View>
                     );
                 }
             }
+            return (
+                <Text style={styles.threeDayText}>
+                    {intl.formatMessage({
+                        id: 'mchat.block.channel.post',
+                        defaultMessage: 'Can\'t see this channel in the mobile.',
+                    })}
+                </Text>
+            );
         }
 
         if (!postIds.length && channelRefreshingFailed) {
