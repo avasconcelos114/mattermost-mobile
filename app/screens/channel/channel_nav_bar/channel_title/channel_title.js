@@ -77,7 +77,7 @@ export default class ChannelTitle extends PureComponent {
         //mchat-mobile, block mobile team
         if (!currentTeam.display_name.endsWith('\u200b')) {
             for (let i = 0; i < channels.length; i++) {
-                if (channels[i].id === currentChannelId && channels[i].type !== 'G' && channels[i].type !== 'D') {
+                if (channels[i].id === currentChannelId) {
                     return (
                         <TouchableOpacity
                             style={style.container}
