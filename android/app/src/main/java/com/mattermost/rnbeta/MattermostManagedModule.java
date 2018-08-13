@@ -1,16 +1,12 @@
 package com.mattermost.rnbeta;
 
-import android.app.Application;
-import android.content.Context;
 import android.os.Bundle;
 
 import com.facebook.react.bridge.Arguments;
-import com.facebook.react.bridge.NativeModule;
+import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
-import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
@@ -19,12 +15,8 @@ import com.mattermost.rnbeta.sso.SSORequestKey;
 import java.util.Map;
 
 public class MattermostManagedModule extends ReactContextBaseJavaModule {
-    private static MattermostManagedModule instance;
 
-    private String mUserId;
-    private String mEpId;
-    private String mBaseUrl;
-    private String mSsoUrl;
+    private static MattermostManagedModule instance;
 
     private boolean shouldBlurAppScreen = false;
 
@@ -50,50 +42,30 @@ public class MattermostManagedModule extends ReactContextBaseJavaModule {
     }
 
     public void setBasInfo(Map<String, String> userInfo, Map<String, String> url) {
-        final WritableArray args = Arguments.createArray();
+        final WritableMap args = Arguments.createMap();
 
-        mEpId = userInfo.get(SSORequestKey.EPID);
-        mUserId = userInfo.get(SSORequestKey.USERID);
-        mBaseUrl = url.get(SSORequestKey.BASE);
-        mSsoUrl = url.get(SSORequestKey.SSO);
+        String epId = userInfo.get(SSORequestKey.EPID);
+        String userId = userInfo.get(SSORequestKey.USERID);
+        String ssoUrl = url.get(SSORequestKey.SSO);
+        String baseUrl = url.get(SSORequestKey.BASE);
 
-        if (mUserId != null && mEpId != null && mBaseUrl != null && mSsoUrl != null) {
-            args.pushBoolean(true);
+        boolean isReady =
+                (userId != null && epId != null && baseUrl != null && ssoUrl != null);
 
-        } else {
-            args.pushBoolean(false);
-        }
+        args.putString("epId", epId);
+        args.putString("userId", userId);
+        args.putString("ssoUrl", ssoUrl);
+        args.putString("baseUrl", baseUrl);
+        args.putBoolean("isReady", isReady);
 
+        sendBasInfo(args);
+    }
+
+    public void sendBasInfo(WritableMap args) {
         DeviceEventManagerModule.RCTDeviceEventEmitter emitter = MainApplication.getReactContext()
                 .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class);
 
         emitter.emit("managedInfoFromBAS", args);
-    }
-
-    public void sendInfoFromBAS(boolean isReady) {
-        WritableArray args = Arguments.createArray();
-        args.pushBoolean(isReady);
-
-        DeviceEventManagerModule.RCTDeviceEventEmitter emitter = MainApplication.getReactContext()
-                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class);
-
-        emitter.emit("managedInfoFromBAS", args);
-    }
-
-    @ReactMethod
-    public void getBasInfo(final Promise promise) {
-        try{
-            WritableMap map = Arguments.createMap();
-            map.putString("userId", mUserId);
-            map.putString("epId", mEpId);
-            map.putString("baseUrl", mBaseUrl);
-            map.putString("ssoUrl", mSsoUrl);
-
-            promise.resolve(map);
-
-        }catch (Exception e) {
-            promise.reject("no get User Infomations", e);
-        }
     }
 
     @ReactMethod

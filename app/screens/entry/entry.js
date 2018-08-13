@@ -18,6 +18,7 @@ import EventEmitter from 'mattermost-redux/utils/event_emitter';
 import {
     app,
     store,
+    basInfo,
 } from 'app/mattermost';
 import {loadFromPushNotification} from 'app/actions/views/root';
 import {ViewTypes} from 'app/constants';
@@ -107,16 +108,10 @@ export default class Entry extends PureComponent {
             navigator,
         } = this.props;
 
-        const userId = app.userId;
-        const epId = app.epId;
-        const baseUrl = app.baseUrl;
-        const ssoUrl = app.ssoUrl;
-
-        console.log('SSO: ssoType = ' + ssoType); //eslint-disable-line no-console
-        console.log('SSO: userId = ' + userId); //eslint-disable-line no-console
-        console.log('SSO: epId = ' + epId); //eslint-disable-line no-console
-        console.log('SSO: baseUrl = ' + baseUrl); //eslint-disable-line no-console
-        console.log('SSO: ssoUrl = ' + ssoUrl); //eslint-disable-line no-console
+        const userId = basInfo.userId;
+        const epId = basInfo.epId;
+        const baseUrl = basInfo.baseUrl;
+        const ssoUrl = basInfo.ssoUrl;
 
         navigator.push({
             screen: 'SSO',
