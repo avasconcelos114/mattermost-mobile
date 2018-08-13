@@ -11,6 +11,7 @@ import {
     NativeModules,
     Platform,
     YellowBox,
+    DeviceEventEmitter,
 } from 'react-native';
 const {StatusBarManager, MattermostShare, Initialization} = NativeModules;
 
@@ -463,20 +464,63 @@ const launchEntry = () => {
 };
 
 configurePushNotifications();
-const startedSharedExtension = Platform.OS === 'android' && MattermostShare.isOpened;
-const fromPushNotification = Platform.OS === 'android' && Initialization.replyFromPushNotification;
 
-if (startedSharedExtension || fromPushNotification) {
-    // Hold on launching Entry screen
-    app.setAppStarted(true);
+export const IS_BAS_LOGIN = true;
 
-    // Listen for when the user opens the app
-    new NativeEventsReceiver().appLaunched(() => {
-        app.setAppStarted(false);
+export const basInfo = {
+    userId: null,
+    epId: null,
+    baseUrl: null,
+    ssoUrl: null,
+    isReady: null,
+};
+
+const getInfoFromBAS = (receiveBasInfo) => {
+    try {
+        const {
+            userId,
+            epId,
+            baseUrl,
+            ssoUrl,
+            isReady,
+        } = receiveBasInfo;
+
+        basInfo.userId = userId;
+        basInfo.epId = epId;
+        basInfo.baseUrl = baseUrl;
+        basInfo.ssoUrl = ssoUrl;
+        basInfo.isReady = isReady;
+
+        console.log('basUserId : ' + basInfo.userId); //eslint-disable-line no-console
+        console.log('basEpId : ' + basInfo.epId); //eslint-disable-line no-console
+        console.log('basBaseUrl : ' + basInfo.baseUrl); //eslint-disable-line no-console
+        console.log('basSsoUrl : ' + basInfo.ssoUrl); //eslint-disable-line no-console
+        console.log('basIsReady : ' + basInfo.isReady); //eslint-disable-line no-console
+
+        launch();
+    } catch (error) {
+        console.error(error); //eslint-disable-line no-console
+    }
+};
+
+DeviceEventEmitter.addListener('managedInfoFromBAS', getInfoFromBAS);
+
+const launch = () => {
+    const startedSharedExtension = Platform.OS === 'android' && MattermostShare.isOpened;
+    const fromPushNotification = Platform.OS === 'android' && Initialization.replyFromPushNotification;
+
+    if (startedSharedExtension || fromPushNotification) {
+        // Hold on launching Entry screen
+        app.setAppStarted(true);
+
+        // Listen for when the user opens the app
+        new NativeEventsReceiver().appLaunched(() => {
+            app.setAppStarted(false);
+            launchEntry();
+        });
+    }
+
+    if (!app.appStarted) {
         launchEntry();
-    });
-}
-
-if (!app.appStarted) {
-    launchEntry();
-}
+    }
+};

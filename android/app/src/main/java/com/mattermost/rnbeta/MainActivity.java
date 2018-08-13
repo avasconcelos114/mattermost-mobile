@@ -94,7 +94,6 @@ public class MainActivity extends SplashActivity {
     }
 
     private void bindRouteManager() {
-        // bind RouteManager
         mRouteManager.bindService(this, new RouteManager.BindCallback() {
             @Override
             public void onServiceConnected(boolean isEnabled) {
