@@ -29,7 +29,7 @@ import DrawerItem from './drawer_item';
 import UserInfo from './user_info';
 import StatusLabel from './status_label';
 
-const IS_LOGOUT_MENU = false;
+const IS_LOGOUT_MENU = true;
 const DRAWER_INITIAL_OFFSET = 80;
 
 export default class SettingsDrawer extends PureComponent {
