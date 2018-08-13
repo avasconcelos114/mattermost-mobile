@@ -2,7 +2,7 @@
 // See LICENSE.txt for license information.
 
 /* eslint-disable global-require*/
-import {DeviceEventEmitter, AsyncStorage, Linking, NativeModules, Platform, Text} from 'react-native';
+import {Linking, AsyncStorage, NativeModules, Platform, Text} from 'react-native';
 import {setGenericPassword, getGenericPassword, resetGenericPassword} from 'react-native-keychain';
 
 import {loadMe} from 'mattermost-redux/actions/users';
@@ -15,10 +15,8 @@ import tracker from 'app/utils/time_tracker';
 import {getCurrentLocale} from 'app/selectors/i18n';
 
 import {getTranslations as getLocalTranslations} from 'app/i18n';
-import {store, handleManagedConfig} from 'app/mattermost';
+import {store, handleManagedConfig, basInfo, IS_BAS_LOGIN} from 'app/mattermost';
 import avoidNativeBridge from 'app/utils/avoid_native_bridge';
-
-import mattermostManaged from 'app/mattermost_managed';
 
 const {Initialization} = NativeModules;
 
@@ -65,18 +63,6 @@ export default class App {
         Linking.addEventListener('url', this.handleDeepLink);
         this.setFontFamily();
 
-        // SSO
-        this.isBasLogin = false;
-        this.userId = null;
-        this.epId = null;
-        this.baseUrl = null;
-        this.ssoUrl = null;
-        this.isReadyFromBAS = false;
-
-        if (this.isBasLogin) {
-            DeviceEventEmitter.addListener('managedInfoFromBAS', this.getInfoFromBAS);
-        }
-
         this.getStartupThemes();
         this.getAppCredentials();
     }
@@ -104,35 +90,6 @@ export default class App {
                     newProps = oldProps;
                 }
             };
-        }
-    };
-
-    getInfoFromBAS = async () => {
-        try {
-            const {
-                userId,
-                epId,
-                baseUrl,
-                ssoUrl,
-            } = await mattermostManaged.getBasInfo();
-
-            this.userId = userId;
-            this.epId = epId;
-            this.baseUrl = baseUrl;
-            this.ssoUrl = ssoUrl;
-
-            console.log('ssoUserId : ' + this.userId); //eslint-disable-line no-console
-            console.log('ssoEpId : ' + this.epId); //eslint-disable-line no-console
-            console.log('ssoBaseUrl : ' + this.baseUrl); //eslint-disable-line no-console
-            console.log('ssoSsoUrl : ' + this.ssoUrl); //eslint-disable-line no-console
-
-            if (this.userId != null && this.epId != null && this.baseUrl != null && this.ssoUrl != null) {
-                this.isReadyFromBAS = true;
-            } else {
-                this.isReadyFromBAS = false;
-            }
-        } catch (error) {
-            console.error(error); //eslint-disable-line no-console
         }
     };
 
@@ -337,7 +294,7 @@ export default class App {
 
         if (this.token && this.url) {
             screen = 'Channel';
-        } else if (this.isReadyFromBAS) {
+        } else if (IS_BAS_LOGIN && basInfo.isReady) {
             screen = 'Bas';
         } else {
             screen = 'SelectServer';
@@ -353,6 +310,11 @@ export default class App {
                 console.warn('Failed to load current user when starting on Channel screen', e); // eslint-disable-line no-console
             }
         }
+
+        console.log('start screen = ' + screen); //eslint-disable-line no-console
+        console.log('MMAUTHTOKEN = ' + this.token); //eslint-disable-line no-console
+        console.log('MMAUTHTOKEN = ' + this.token); //eslint-disable-line no-console
+
         switch (screen) {
         case 'Bas':
             EventEmitter.emit(ViewTypes.LAUNCH_SSO, true);
