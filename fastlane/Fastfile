@@ -224,28 +224,57 @@ platform :ios do
     replace_assets
   end
 
-  lane :update_identifiers do
-    # Set the name for the app
-    app_name =  ENV['APP_NAME'] || 'Mattermost Beta'
-    update_info_plist(
-        xcodeproj: './ios/Mattermost.xcodeproj',
-        plist_path: 'Mattermost/Info.plist',
-        display_name: app_name
-    )
+  lane :build_qa do
+    match(type: 'adhoc')
+    build_ios
 
-    # Set the share extension bundle identifier
-    extension_bundle_id = ENV['EXTENSION_APP_IDENTIFIER'] || 'com.mattermost.rnbeta.MattermostShare'
-    update_app_identifier(
-        xcodeproj: './ios/Mattermost.xcodeproj',
-        plist_path: 'MattermostShare/Info.plist',
-        app_identifier: extension_bundle_id
-    )
+    plist_template = File.read('plist.erb')
+    abbreviated_commit_hash = `git rev-parse --short head`
+    abbreviated_commit_hash.strip!
+    plist_body = ERB.new(plist_template).result(binding)
 
-    find_replace_string(
-        path_to_file: './ios/Mattermost.xcodeproj/project.pbxproj',
-        old_string: 'com.mattermost.rnbeta.MattermostShare',
-        new_string: extension_bundle_id
-    )
+    s3 = Aws::S3::Resource.new(region: ENV['AWS_REGION'])
+    plist_obj = s3.bucket(ENV['AWS_BUCKET_NAME']).object("ios/#{abbreviated_commit_hash}.plist")
+    plist_obj.put(body: plist_body)
+
+    ipa_obj = s3.bucket(ENV['AWS_BUCKET_NAME']).object("ios/#{abbreviated_commit_hash}.ipa")
+    ipa_obj.upload_file('../Mattermost.ipa')
+
+    ios_install_url = "itms-services://?action=download-manifest&url=https://s3.#{ENV['AWS_REGION']}.amazonaws.com/#{ENV['AWS_BUCKET_NAME']}/ios/#{abbreviated_commit_hash}.plist"
+
+    unless ENV['MATTERMOST_WEBHOOK_URL'].nil? || ENV['MATTERMOST_WEBHOOK_URL'].empty?
+      msg = "QA build [#{abbreviated_commit_hash}](https://github.com/mattermost/mattermost-mobile/commit/#{abbreviated_commit_hash}) — iOS: #{ios_install_url}"
+      mattermost(message: msg, username: 'Fastlane', icon_url: 'https://support.apple.com/library/content/dam/edam/applecare/images/en_US/iOS/move-to-ios-icon.png')
+    end
+  end
+
+  error do |lane, exception|
+    if ENV['MATTERMOST_WEBHOOK_URL']
+      send_message_for_ios('', 'Unsuccessful Build', exception.message, [:lane], false)
+    end
+  end
+
+  def update_identifiers()
+    unless ENV['IOS_MAIN_APP_IDENTIFIER'].nil? || ENV['IOS_MAIN_APP_IDENTIFIER'].empty? || ENV['IOS_MAIN_APP_IDENTIFIER'] == 'com.sds.mchat'
+      update_app_identifier(
+          xcodeproj: './ios/Mattermost.xcodeproj',
+          plist_path: 'Mattermost/Info.plist',
+          app_identifier: ENV['IOS_MAIN_APP_IDENTIFIER']
+      )
+
+      find_replace_string(
+          path_to_file: './ios/Mattermost.xcodeproj/project.pbxproj',
+          old_string: 'com.sds.mchat',
+          new_string: ENV['IOS_MAIN_APP_IDENTIFIER']
+      )
+    end
+
+    unless ENV['IOS_ICLOUD_CONTAINER'].nil? || ENV['IOS_ICLOUD_CONTAINER'].empty? || ENV['IOS_ICLOUD_CONTAINER'] == 'iCloud.com.sds.mchat'
+      update_icloud_container_identifiers(
+          entitlements_file: './ios/Mattermost/Mattermost.entitlements',
+          icloud_container_identifiers: [ENV['IOS_ICLOUD_CONTAINER']]
+      )
+    end
 
     # Set the app bundle id
     app_bundle_id = ENV['MAIN_APP_IDENTIFIER'] || 'com.mattermost.rnbeta'
@@ -255,11 +284,12 @@ platform :ios do
         app_identifier: app_bundle_id
     )
 
-    find_replace_string(
-        path_to_file: './ios/Mattermost.xcodeproj/project.pbxproj',
-        old_string: 'com.mattermost.rnbeta',
-        new_string: app_bundle_id
-    )
+    if Dir.exist?('../ios/MattermostShare/')
+      unless ENV['IOS_APP_GROUP'].nil? || ENV['IOS_APP_GROUP'].empty? || ENV['IOS_APP_GROUP'] == 'group.com.sds.mchat'
+        update_app_group_identifiers(
+            entitlements_file: './ios/Mattermost/Mattermost.entitlements',
+            app_group_identifiers: [ENV['IOS_APP_GROUP']]
+        )
 
     # If set update the development team
     unless ENV['FASTLANE_TEAM_ID'].nil? || ENV['FASTLANE_TEAM_ID'].empty?
@@ -283,19 +313,30 @@ platform :ios do
         app_group_identifiers: [app_group_id]
     )
 
-    update_app_group_identifiers(
-        entitlements_file: './ios/MattermostShare/MattermostShare.entitlements',
-        app_group_identifiers: [app_group_id]
-    )
+        File.open(config_path, 'w') do |f|
+          f.write(JSON.pretty_generate(config_json))
+        end
+        
+        find_replace_string(
+            path_to_file: './dist/assets/config.json',
+            old_string: 'group.com.sds.mchat',
+            new_string: ENV['IOS_APP_GROUP']
+        )
+      end
 
-    # Save changes to the config.json file
-    config_json = load_config_json
-    config_json['AppGroupId'] = app_group_id
-    save_config_json(config_json)
+      unless ENV['IOS_EXTENSION_APP_IDENTIFIER'].nil? || ENV['IOS_EXTENSION_APP_IDENTIFIER'].empty? || ENV['IOS_EXTENSION_APP_IDENTIFIER'] == 'com.sds.mchat.MattermostShare'
+        update_app_identifier(
+            xcodeproj: './ios/Mattermost.xcodeproj',
+            plist_path: 'MattermostShare/Info.plist',
+            app_identifier: ENV['IOS_EXTENSION_APP_IDENTIFIER']
+        )
 
-    # Sync the provisioning profiles using match
-    if ENV['SYNC_PROVISIONING_PROFILES'] == 'true'
-      match(type: ENV['MATCH_TYPE'] || 'adhoc')
+        find_replace_string(
+            path_to_file: './ios/Mattermost.xcodeproj/project.pbxproj',
+            old_string: 'com.sds.mchat.MattermostShare',
+            new_string: ENV['IOS_EXTENSION_APP_IDENTIFIER']
+        )
+      end
     end
   end
 
@@ -343,6 +384,37 @@ platform :ios do
 end
 
 platform :android do
+  before_all do |lane|
+    unless ENV['BRANCH_TO_BUILD'].nil? || ENV['BRANCH_TO_BUILD'].empty?
+      sh "git checkout #{ENV['BRANCH_TO_BUILD']}"
+    end
+
+    unless ENV['GIT_LOCAL_BRANCH'].nil? || ENV['GIT_LOCAL_BRANCH'].empty?
+      sh "git checkout -b #{ENV['GIT_LOCAL_BRANCH']}"
+    end
+  end
+
+  after_all do |lane|
+    if ENV['RESET_GIT_BRANCH'] == 'true'
+      packageId = ENV['ANDROID_PACKAGE_ID'] || 'com.sds.mchat'
+      beta_dir = '../android/app/src/main/java/com/mattermost/rnbeta'
+      release_dir = "../android/app/src/main/java/#{package_id.gsub '.', '/'}"
+
+      if beta_dir != release_dir
+        sh "rm -rf #{release_dir}"
+      end
+
+      reset_git_repo(
+          force: true,
+          skip_clean: true
+      )
+
+      branch = ENV['BRANCH_TO_BUILD'] || 'master'
+
+      sh "git checkout #{branch}"
+    end
+  end
+
   desc 'Build Android app'
   lane :build do
     unless configured
@@ -352,6 +424,47 @@ platform :android do
     replace_assets
     link_sentry_android
     build_android
+
+    app_name =  ENV['APP_NAME'] || 'Mattermost Beta'
+    apk_path = "#{lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH]}"
+
+    if ENV['SUBMIT_ANDROID_TO_GOOGLE_PLAY'] == 'true'
+      supply(
+          track: ENV['SUPPLY_TRACK'] || 'alpha',
+          apk: apk_path
+      )
+
+      build_number = android_get_version_code(
+          gradle_file: './android/app/build.gradle'
+      )
+      version_number = android_get_version_name(
+          gradle_file: './android/app/build.gradle'
+      )
+
+      # Send a build message to Mattermost
+      pretext = '#### New Android released ready to be published'
+      msg = 'release has been cut and is on the Beta track ready to be published.'
+
+    if ENV['MATTERMOST_WEBHOOK_URL'] && !ENV['MATTERMOST_WEBHOOK_URL'].nil? && !ENV['MATTERMOST_WEBHOOK_URL'].empty?
+      pretext = '#### New Android beta published to Google Play -> @qateam'
+      msg = '#android-beta available for testing, you can sign up as a beta tester [here](https://play.google.com/apps/testing/com.sds.mchat)'
+      if !ENV['BETA_BUILD'].nil? && !ENV['BETA_BUILD'].empty? && ENV['BETA_BUILD'] != 'true'
+        pretext = '#### New Android released ready to be published -> @qateam'
+        msg = '#android-release has been cut and should be available for [download](https://play.google.com/store/apps/details?id=com.mattermost.rn&hl=en) soon.'
+      end
+
+      send_message_to_mattermost(
+          version_number,
+          build_number,
+          pretext,
+          '',
+          msg,
+          [],
+          true
+      )
+    end
+
+    sh "mv #{apk_path} \"./#{app_name}.apk\""
   end
 
   desc 'Build an unsigned apk'
@@ -382,9 +495,35 @@ platform :android do
     android_change_package_identifier(newIdentifier: package_id, manifest: './android/app/src/main/AndroidManifest.xml')
     android_update_application_id(app_folder_name: 'android/app', application_id: package_id)
 
+  def prepare_release
+    packageId = ENV['ANDROID_PACKAGE_ID'] || 'com.sds.mchat'
     beta_dir = './android/app/src/main/java/com/mattermost/rnbeta/'
     release_dir = "./android/app/src/main/java/#{package_id.gsub '.', '/'}/"
-    if ENV['BUILD_FOR_RELEASE'] == 'true'
+
+    if ENV['ANDROID_REPLACE_ASSETS'] == 'true'
+      sh 'cp -R ../dist/assets/release/icons/android/* ../android/app/src/main/res/'
+      sh 'cp -R ../dist/assets/release/splash_screen/android/* ../android/app/src/main/res/'
+    end
+
+    if packageId != 'com.sds.mchat'
+      android_change_package_identifier(newIdentifier: packageId, manifest: './android/app/src/main/AndroidManifest.xml')
+      android_update_application_id(app_folder_name: 'android/app', application_id: packageId)
+    end
+
+    unless ENV['ANDROID_APP_NAME'].nil? || ENV['ANDROID_APP_NAME'].empty? || ENV['ANDROID_APP_NAME'] == 'Mattermost Beta'
+      android_change_string_app_name(
+          newName: ENV['ANDROID_APP_NAME'],
+          stringsFile: './android/app/src/main/res/values/strings.xml'
+      )
+
+      find_replace_string(
+          path_to_file: './fastlane/metadata/android/en-US/title.txt',
+          old_string: 'Mattermost Beta',
+          new_string: ENV['ANDROID_APP_NAME']
+      )
+    end
+
+    if ENV['ANDROID_BUILD_FOR_RELEASE'] == 'true'
       find_replace_string(
           path_to_file: "#{beta_dir}MainApplication.java",
           old_string: 'return BuildConfig.DEBUG;',
@@ -401,23 +540,23 @@ platform :android do
 
       find_replace_string(
           path_to_file: './android/app/BUCK',
-          old_string: 'package com.mattermost.rnbeta;',
-          new_string: "package #{package_id};"
+          old_string: 'package com.sds.mchat;',
+          new_string: "package #{packageId};"
       )
 
       Dir.glob(".#{release_dir}*.java") do |item|
         find_replace_string(
             path_to_file: item[1..-1],
-            old_string: 'package com.mattermost.rnbeta;',
-            new_string: "package #{package_id};"
+            old_string: 'package com.sds.mchat;',
+            new_string: "package #{packageId};"
         )
       end
 
       Dir.glob('../android/app/src/main/java/com/mattermost/share/*.java') do |item|
         find_replace_string(
             path_to_file: item[1..-1],
-            old_string: 'import com.mattermost.rnbeta.MainApplication;',
-            new_string: "import #{package_id}.MainApplication;"
+            old_string: 'import com.sds.mchat.MainApplication;',
+            new_string: "import #{packageId}.MainApplication;"
         )
       end
     end

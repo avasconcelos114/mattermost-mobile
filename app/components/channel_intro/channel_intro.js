@@ -310,7 +310,7 @@ class ChannelIntro extends PureComponent {
     };
 
     render() {
-        const {currentChannel, isLoadingPosts, theme, intl} = this.props;
+        const {currentChannel, theme, intl} = this.props;
         const style = getStyleSheet(theme);
         const channelType = currentChannel.type;
 
