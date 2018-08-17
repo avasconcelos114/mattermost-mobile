@@ -78,7 +78,7 @@ export MATCH_PASSWORD=
 export MATCH_GIT_URL=
 
 # The bundle identifier(s) of your app (comma-separated)
-export MATCH_APP_IDENTIFIER=com.mattermost.rnbeta.MattermostShare,com.mattermost.rnbeta
+export MATCH_APP_IDENTIFIER=com.sds.mchat.MattermostShare,com.sds.mchat
 
 # Define the profile type. Valid values are: appstore, adhoc, development, enterprise
 export MATCH_TYPE=adhoc
