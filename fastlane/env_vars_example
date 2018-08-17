@@ -22,13 +22,13 @@ export ANDROID_COMMIT_INCREMENT_BUILD_NUMBER_MESSAGE="Bump Android build number 
 export ANDROID_APP_NAME="Mattermost Beta"
 
 # The package Id for the Android app
-export ANDROID_PACKAGE_ID=com.mattermost.rnbeta
+export ANDROID_PACKAGE_ID=com.sds.mchat
 
 # The track of the application to use when submitting to Google Play, valid values are: alpha, beta, production
 export SUPPLY_TRACK=
 
 # The package id of the application, should match ANDROID_PACKAGE_ID
-export SUPPLY_PACKAGE_NAME=com.mattermost.rnbeta
+export SUPPLY_PACKAGE_NAME=com.sds.mchat
 
 # The path to the service account json file used to authenticate with Google
 export SUPPLY_JSON_KEY=
@@ -57,13 +57,13 @@ export IOS_COMMIT_INCREMENT_BUILD_NUMBER_MESSAGE="Bump iOS build number to"
 export IOS_APP_NAME="Mattermost Beta"
 
 # The Bundle Identifier for the main app
-export IOS_MAIN_APP_IDENTIFIER=com.mattermost.rnbeta
+export IOS_MAIN_APP_IDENTIFIER=com.sds.mchat
 
 # The Bundle Identifier for the extension app
-export IOS_EXTENSION_APP_IDENTIFIER=com.mattermost.rnbeta.MattermostShare
+export IOS_EXTENSION_APP_IDENTIFIER=com.sds.mchat.MattermostShare
 
 # The iOS App Group identifier used to share data between the app and the extension
-export IOS_APP_GROUP=group.com.mattermost.rnbeta
+export IOS_APP_GROUP=group.com.sds.mchat
 
 # Method used to export the archive. Valid values are: app-store, ad-hoc, package, enterprise, development, developer-id
 export IOS_BUILD_EXPORT_METHOD=app-store
@@ -78,7 +78,7 @@ export MATCH_PASSWORD=
 export MATCH_GIT_URL=
 
 # The bundle identifier(s) of your app (comma-separated)
-export MATCH_APP_IDENTIFIER=com.mattermost.rnbeta.MattermostShare,com.mattermost.rnbeta
+export MATCH_APP_IDENTIFIER=com.sds.mchat.MattermostShare,com.sds.mchat
 
 # Define the profile type. Valid values are: appstore, adhoc, development, enterprise
 export MATCH_TYPE=adhoc
