@@ -11,27 +11,21 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 
+import com.architectgroup.mchat.bas.BasManager;
+import com.architectgroup.mchat.bas.SSOManager;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.reactnativenavigation.controllers.SplashActivity;
-import com.sds.ems.utils.UpdateApplication;
-import com.sds.sso.RouteManager;
-import com.sds.sso.SSOManager;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.Nonnull;
-
 public class MainActivity extends SplashActivity {
-
-    private static final String TAG = "MainActivity";
 
     private static final int REQUEST_READ_PHONE_STATE_PERMISSION = 100;
 
-    private SSOManager mSsoManager = SSOManager.getInstance();
-    private RouteManager mRouteManager = RouteManager.getInstance();
+    private BasManager mBasManager = BasManager.getInstance();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -54,7 +48,7 @@ public class MainActivity extends SplashActivity {
         loadGif();
 
         if (isPermissionsGranted()) {
-            bindRouteManager();
+            bindBasManager();
 
         } else {
             ActivityCompat.requestPermissions(
@@ -93,76 +87,53 @@ public class MainActivity extends SplashActivity {
         }
     }
 
-    private void bindRouteManager() {
-        mRouteManager.bindService(this, new RouteManager.BindCallback() {
+    private void bindBasManager() {
+        mBasManager.bindService(this, new BasManager.OnBindCallback() {
             @Override
-            public void onServiceConnected(boolean isEnabled) {
-                bindSsoManager();
-            }
-
-            @Override
-            public void onError(@Nonnull String errorMsg) {
-                ExitAlert("Bind Error", errorMsg);
-            }
-        });
-    }
-
-    private void bindSsoManager() {
-        mSsoManager.bindService(this, new SSOManager.BindCallback() {
-            @Override
-            public void onServiceConnected(boolean isEnabled) {
+            public void onBound(boolean isEnabled) {
                 if (isEnabled) {
-                    appVersionCheck();
-
+                    checkAppVersion();
                 } else {
-                    ExitAlert("Bas Error", "Please login BAS");
+                    ExitAlert("Error", "BAS is not login");
                 }
             }
 
             @Override
-            public void onError(@Nonnull String errorMsg) {
-                ExitAlert("Bind Error", errorMsg);
+            public void onError(@NonNull String errorMsg) {
+                ExitAlert("Error", errorMsg);
             }
         });
     }
 
-    private void appVersionCheck() {
-        mSsoManager.versionChecker(this, new SSOManager.versionCheckCallback() {
+    private void checkAppVersion() {
+        mBasManager.checkAppVersion(this, new SSOManager.OnVersionCheckCallback() {
             @Override
-            public void onLatest(@Nonnull String responseCode) {
-                getDataFromBAS();
+            public void onLatest(@NonNull String responseCode) {
+                getBasInfo();
             }
 
             @Override
-            public void onUpdate(@Nonnull String responseCode, @Nonnull HashMap<String, String> userInfo) {
-                UpdateApplication updateApplication =
-                        UpdateApplication.getInstance(MainApplication.getContext(), userInfo);
-
-                updateApplication.doUpdate();
+            public void onNeedUpdate(@NonNull String responseCode, @NonNull HashMap<String, String> userInfo) {
+                mBasManager.updateApplication(MainActivity.this);
             }
 
             @Override
-            public void onError(@Nonnull String responseCode) {
-                ExitAlert("SSO Error", "error code: " + responseCode);
+            public void onError(@NonNull String errorMsg) {
+                ExitAlert("Error", errorMsg);
             }
         });
     }
 
-    private void getDataFromBAS() {
-        mSsoManager.getDataFromBAS(mRouteManager, new SSOManager.BasCallback() {
+    private void getBasInfo() {
+        mBasManager.getBasInfo(new BasManager.OnBasInfoCallback() {
             @Override
-            public void onSuccess(@Nonnull Map<String, String> userInfo, @Nonnull Map<String, String> url) {
-                sendBasInfo(userInfo, url);
+            public void onSuccess(@NonNull Map<String, String> userInfo, @NonNull Map<String, String> urlInfo) {
+                sendBasInfo(userInfo, urlInfo);
             }
 
             @Override
-            public void onBasLocked() {
-                ExitAlert("BAS Error", "Please unLock BAS.");
-            }
-
-            @Override
-            public void onSsoError() {
-                ExitAlert("BAS Error", "isSingleSignOn: false.");
+            public void onError(@NonNull String errorMsg) {
+                ExitAlert("Error", errorMsg);
             }
         });
     }
@@ -182,7 +153,7 @@ public class MainActivity extends SplashActivity {
         switch (requestCode) {
             case REQUEST_READ_PHONE_STATE_PERMISSION: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    bindRouteManager();
+                    bindBasManager();
 
                 } else {
                     ExitAlert("Permission Rejected", "Please grant permission.");
@@ -220,8 +191,7 @@ public class MainActivity extends SplashActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mSsoManager.unbindService(this);
-        mRouteManager.unbindService(this);
+        mBasManager.unBindService(this);
     }
 
 }
