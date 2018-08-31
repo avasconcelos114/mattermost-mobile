@@ -117,6 +117,7 @@
     ]
   },
   "jest": {
+    "verbose": true,
     "clearMocks": true,
     "collectCoverageFrom": [
       "app/**/*.{js,jsx}"

@@ -7,6 +7,8 @@ import android.support.annotation.NonNull;
 
 import com.BV.LinearGradient.LinearGradientPackage;
 import com.RNFetchBlob.RNFetchBlobPackage;
+import com.architectgroup.mchat.bas.BasManager;
+import com.architectgroup.mchat.bas.Configuration;
 import com.brentvatne.react.ReactVideoPackage;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.react.ReactPackage;
@@ -147,6 +149,32 @@ public class MainApplication extends NavigationApplication implements INotificat
         SoLoader.init(this, /* native exopackage */ false);
 
         Fresco.initialize(this);
+
+        BasManager.init(new Configuration() {
+            @NonNull
+            @Override
+            public String getScheme() {
+                return MChatConstants.getDefaultScheme();
+            }
+
+            @NonNull
+            @Override
+            public String getHostName() {
+                return MChatConstants.getDefaultHost();
+            }
+
+            @NonNull
+            @Override
+            public String getPort() {
+                return MChatConstants.getDefaultPort();
+            }
+
+            @NonNull
+            @Override
+            public String getPackageName() {
+                return MainApplication.this.getPackageName();
+            }
+        });
     }
 
     @Override
