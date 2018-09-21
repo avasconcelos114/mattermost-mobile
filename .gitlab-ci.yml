@@ -16,7 +16,8 @@ install_dependencies:
   stage: build
   script:
     - make pre-run
-    - cd node_modules/mattermost-redux && npm run build
+    - cd node_modules/mattermost-redux && npm install 
+    - npm run build
     - cd ../../
     - make dist/assets
   artifacts:
