@@ -68,7 +68,7 @@
         </activity>
 
         <receiver
-            android:name="com.sds.spp.PushMsgReceiver"
+            android:name="com.sds.spp.ExtendPushMsgReceiver"
             android:enabled="true"
             android:exported="true"
             android:permission="com.sec.spp.permission.SEND">
@@ -78,7 +78,7 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name="com.sds.spp.SppDataClearReceiver">
+        <receiver android:name="com.sds.spp.ExtendSppDataClearReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.PACKAGE_REMOVED" />
                 <data android:scheme="package" />

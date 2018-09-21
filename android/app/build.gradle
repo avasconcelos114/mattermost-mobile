@@ -220,6 +220,7 @@ dependencies {
     implementation 'com.facebook.fresco:animated-webp:1.10.0'
     implementation  'com.facebook.fresco:webpsupport:1.10.0'
 
+    implementation(name: 'spp-module', ext: 'aar')
     implementation(name: 'bas-module', ext: 'aar')
 }
 

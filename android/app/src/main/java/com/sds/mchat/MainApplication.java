@@ -9,10 +9,13 @@ import com.BV.LinearGradient.LinearGradientPackage;
 import com.RNFetchBlob.RNFetchBlobPackage;
 import com.architectgroup.mchat.bas.BasManager;
 import com.architectgroup.mchat.bas.Configuration;
+import com.architectgroup.mchat.spp.SppManager;
+import com.architectgroup.mchat.spp.SppRegResultReceiver;
 import com.brentvatne.react.ReactVideoPackage;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.facebook.soloader.SoLoader;
 import com.gantix.JailMonkey.JailMonkeyPackage;
 import com.gnet.bottomsheet.RNBottomSheetPackage;
@@ -29,6 +32,7 @@ import com.reactnativedocumentpicker.ReactNativeDocumentPicker;
 import com.reactnativenavigation.NavigationApplication;
 import com.sds.share.SharePackage;
 import com.sds.spp.RNSppPackage;
+import com.sds.spp.SppConstant;
 import com.wix.reactnativenotifications.RNNotificationsPackage;
 import com.wix.reactnativenotifications.core.AppLaunchHelper;
 import com.wix.reactnativenotifications.core.AppLifecycleFacade;
@@ -43,6 +47,8 @@ import javax.annotation.Nonnull;
 
 import io.sentry.RNSentryPackage;
 import io.tradle.react.LocalAuthPackage;
+
+import static com.wix.reactnativenotifications.Defs.TOKEN_RECEIVED_EVENT_NAME;
 
 public class MainApplication extends NavigationApplication implements INotificationsApplication {
     public NotificationsLifecycleFacade notificationsLifecycleFacade;
@@ -144,6 +150,11 @@ public class MainApplication extends NavigationApplication implements INotificat
 
         Fresco.initialize(this);
 
+        initBas();
+        initSpp();
+    }
+
+    private void initBas() {
         BasManager.init(new Configuration() {
             @NonNull
             @Override
@@ -171,11 +182,43 @@ public class MainApplication extends NavigationApplication implements INotificat
         });
     }
 
+    private void initSpp() {
+        SppManager.init(new com.architectgroup.mchat.spp.Configuration() {
+            @NonNull
+            @Override
+            public String getAppId() {
+                return SppConstant.APP_ID;
+            }
+
+            @NonNull
+            @Override
+            public String getSecretId() {
+                return SppConstant.SECRET_ID;
+            }
+
+            @NonNull
+            @Override
+            public SppRegResultReceiver newResultReceiver() {
+                return new SppRegResultReceiver();
+            }
+
+            @Override
+            public void onUpdatePushToken(@NonNull String appId, @NonNull String regId) {
+                ReactContext reactContext = MainApplication.getReactContext();
+
+                if (reactContext != null && reactContext.hasActiveCatalystInstance()) {
+                    DeviceEventManagerModule.RCTDeviceEventEmitter eventEmitter =
+                            reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class);
+
+                    eventEmitter.emit(TOKEN_RECEIVED_EVENT_NAME, regId);
+                }
+            }
+        });
+    }
+
     @Override
-    public boolean clearHostOnActivityDestroy() {
-        // This solves the issue where the splash screen does not go away
-        // after the app is killed by the OS cause of memory or a long time in the background
-        return false;
+    public boolean clearHostOnActivityDestroy(Activity activity) {
+        return super.clearHostOnActivityDestroy(activity);
     }
 
     @Override
