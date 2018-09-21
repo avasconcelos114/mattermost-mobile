@@ -116,8 +116,8 @@ class ChannelDrawerButton extends PureComponent {
 
         //mchat-mobile, delete mention count for blocked team, change members -> newMembers
         newMembers.forEach((m) => {
-            mentions = mentions + (m.mention_count || 0);
-            messages = messages + (m.msg_count || 0);
+            mentions += (m.mention_count || 0);
+            messages += (m.msg_count || 0);
         });
 
         let badgeCount = 0;
