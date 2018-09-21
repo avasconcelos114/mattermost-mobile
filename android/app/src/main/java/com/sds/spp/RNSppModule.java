@@ -1,8 +1,10 @@
 package com.sds.spp;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.architectgroup.mchat.spp.SppManager;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
@@ -11,6 +13,8 @@ import com.sds.mchat.MainApplication;
 public class RNSppModule extends ReactContextBaseJavaModule {
 
     public static final String TAG = "RNSppModule";
+
+    private final SppManager mSppManager = SppManager.getInstance();
 
     public RNSppModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -25,8 +29,12 @@ public class RNSppModule extends ReactContextBaseJavaModule {
     public void requestSppRegId() {
         Log.d(TAG, "requestSppRegId!!");
         Context applicationContext = MainApplication.getContext();
-        SppManager.registerRegResultReceiver(applicationContext);
-        SppManager.requestRegistration(applicationContext);
+        mSppManager.register(applicationContext, new SppManager.SppInstalledCallback() {
+            @Override
+            public void onUnInstalled(@NonNull String message) {
+                Log.d(TAG, message);
+            }
+        });
     }
 
 }
