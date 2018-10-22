@@ -91,6 +91,7 @@
   "last_users_message.others": "{numOthers} 명이 ",
   "last_users_message.removed_from_channel.type": "**채널에서 삭제되었습니다**.",
   "last_users_message.removed_from_team.type": "**팀에서 삭제되었습니다**.",
+  "intro_messages.limitedDate": "모바일에서는 3일 이전의 메시지를 조회하실 수 없습니다.",
   "login_mfa.enterToken": "To complete the sign in process, please enter a token from your smartphone's authenticator",
   "login_mfa.token": "MFA 토큰",
   "login_mfa.tokenReq": "MFA 토큰을 입력하세요.",
