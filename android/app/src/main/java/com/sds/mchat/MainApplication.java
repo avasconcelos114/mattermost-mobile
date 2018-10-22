@@ -47,6 +47,7 @@ import javax.annotation.Nonnull;
 
 import io.sentry.RNSentryPackage;
 import io.tradle.react.LocalAuthPackage;
+import com.github.godness84.RNRecyclerViewList.RNRecyclerviewListPackage;
 
 import static com.wix.reactnativenotifications.Defs.TOKEN_RECEIVED_EVENT_NAME;
 
@@ -87,7 +88,8 @@ public class MainApplication extends NavigationApplication implements INotificat
                 new SharePackage(this),
                 new KeychainPackage(),
                 new InitializationPackage(this),
-                new RNSppPackage()
+                new RNSppPackage(),
+                new RNRecyclerviewListPackage()
         );
     }
 
