@@ -48,7 +48,26 @@ export function selectDefaultTeam() {
         const {teams: allTeams, myMembers} = state.entities.teams;
         const teams = Object.keys(myMembers).map((key) => allTeams[key]);
 
-        let defaultTeam = selectFirstAvailableTeam(teams, ExperimentalPrimaryTeam);
+        //새로운 기능인 것 같은데 보류
+        //let defaultTeam = selectFirstAvailableTeam(teams, ExperimentalPrimaryTeam);
+
+        let defaultTeam;
+        if (ExperimentalPrimaryTeam) {
+            defaultTeam = teams.find((t) => t.name === ExperimentalPrimaryTeam.toLowerCase());
+        }
+
+        //mchat-mobile, pick first unblocked team
+        const sortedTeams = Object.values(teams).sort((a, b) => a.display_name.localeCompare(b.display_name));
+        for (let i = 0; i < teams.length; i++) {
+            if (sortedTeams[i].display_name.endsWith('\u200b')) {
+                defaultTeam = sortedTeams[i];
+                i = teams.length;
+            }
+        }
+
+        if (!defaultTeam) {
+            defaultTeam = Object.values(teams).sort((a, b) => a.display_name.localeCompare(b.display_name))[0];
+        }
 
         if (defaultTeam) {
             dispatch(handleTeamChange(defaultTeam.id));
