@@ -51,6 +51,12 @@ export function makePreparePostIdsForPostList() {
                     continue;
                 }
 
+                //mchat-mobile, block-3days-old-post
+                const now = new Date().getTime();
+                if (now - post.create_at > 259200000) {
+                    continue;
+                }
+
                 // Filter out join/leave messages if necessary
                 if (shouldFilterJoinLeavePost(post, showJoinLeave, currentUser.username)) {
                     continue;

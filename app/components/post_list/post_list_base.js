@@ -133,13 +133,6 @@ export default class PostListBase extends PureComponent {
                 />
             );
         } else if (isDateLine(item)) {
-            //mchat-mobile, block-3days-old-post
-            const now = new Date().getTime();
-            const time = item.toString().split('-').splice(1, 1);
-            if (now - time > 259200000) {
-                return null;
-            }
-
             return (
                 <DateHeader
                     dateLineString={item}

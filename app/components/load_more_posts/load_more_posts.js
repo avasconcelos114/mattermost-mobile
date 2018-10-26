@@ -4,7 +4,8 @@
 import React, {PureComponent} from 'react';
 import PropTypes from 'prop-types';
 import {
-    ActivityIndicator,
+
+    //ActivityIndicator,
     TouchableOpacity,
     View,
     ViewPropTypes,
@@ -45,11 +46,12 @@ export default class LoadMorePosts extends PureComponent {
             );
         }
 
-        return (
+        /*return (
             <View style={{flex: 1, alignItems: 'center'}}>
                 <ActivityIndicator/>
             </View>
-        );
+        );*/
+        return null;
     }
 
     render() {
