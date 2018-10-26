@@ -112,7 +112,9 @@ export default class TeamsList extends PureComponent {
     };
 
     render() {
-        const {hasOtherJoinableTeams, teamIds, theme} = this.props;
+        //mchat-mobile, hasOtherJoinableTeams가 추가되었으나 필요없는 부분이라 제외함
+        //const {hasOtherJoinableTeams, teamIds, theme} = this.props;
+        const {teamIds, theme} = this.props;
         const styles = getStyleSheet(theme);
 
         //mchat-mobile, block team list
