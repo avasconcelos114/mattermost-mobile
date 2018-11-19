@@ -125,19 +125,16 @@ export default class List extends PureComponent {
         const sections = [];
 
         //mchat-mobile, block mobile team
-        let newDirectChannelIds;
-        let newFavoriteChannelIds;
-        let newPublicChannelIds;
-        let newPrivateChannelIds;
-        let newUnreadChannelIds;
+        let newFavoriteChannelIds = [];
+        let newPublicChannelIds = [];
+        let newPrivateChannelIds = [];
+        let newUnreadChannelIds = [];
         if (currentTeam.display_name.endsWith('\u200b')) {
-            newDirectChannelIds = directChannelIds;
             newFavoriteChannelIds = favoriteChannelIds;
             newPrivateChannelIds = privateChannelIds;
             newPublicChannelIds = publicChannelIds;
             newUnreadChannelIds = unreadChannelIds;
         } else {
-            newDirectChannelIds = this.pickBlockedChannels(directChannelIds, channels);
             newFavoriteChannelIds = this.pickBlockedChannels(favoriteChannelIds, channels);
             newPrivateChannelIds = this.pickBlockedChannels(privateChannelIds, channels);
             newPublicChannelIds = this.pickBlockedChannels(publicChannelIds, channels);
@@ -166,31 +163,35 @@ export default class List extends PureComponent {
             });
         }
 
-        sections.push({
-            action: this.goToMoreChannels,
-            id: t('sidebar.channels'),
-            defaultMessage: 'PUBLIC CHANNELS',
-            data: newPublicChannelIds,
-            topSeparator: newFavoriteChannelIds.length > 0 || newUnreadChannelIds.length > 0,
-            bottomSeparator: newPublicChannelIds.length > 0,
-        });
+        // Hide PUBLIC CHANNELS and PRIVATE CHANNELS if no mobile permissions found
+        if (currentTeam.display_name.endsWith('\u200b')) {
+            sections.push({
+                action: this.goToMoreChannels,
+                id: t('sidebar.channels'),
+                defaultMessage: 'PUBLIC CHANNELS',
+                data: newPublicChannelIds,
+                topSeparator: newFavoriteChannelIds.length > 0 || newUnreadChannelIds.length > 0,
+                bottomSeparator: newPublicChannelIds.length > 0,
+            });
 
-        sections.push({
-            action: canCreatePrivateChannels ? this.goToCreatePrivateChannel : null,
-            id: t('sidebar.pg'),
-            defaultMessage: 'PRIVATE CHANNELS',
-            data: newPrivateChannelIds,
-            topSeparator: true,
-            bottomSeparator: newPrivateChannelIds.length > 0,
-        });
+            sections.push({
+                action: canCreatePrivateChannels ? this.goToCreatePrivateChannel : null,
+                id: t('sidebar.pg'),
+                defaultMessage: 'PRIVATE CHANNELS',
+                data: newPrivateChannelIds,
+                topSeparator: true,
+                bottomSeparator: newPrivateChannelIds.length > 0,
+            });
+        }
 
         sections.push({
             action: this.goToDirectMessages,
             id: t('sidebar.direct'),
             defaultMessage: 'DIRECT MESSAGES',
-            data: newDirectChannelIds,
+            isDm: true,
+            data: directChannelIds,
             topSeparator: true,
-            bottomSeparator: newDirectChannelIds.length > 0,
+            bottomSeparator: directChannelIds.length > 0,
         });
 
         return sections;
@@ -278,11 +279,11 @@ export default class List extends PureComponent {
         this.setState({width: width - 40});
     };
 
-    renderSectionAction = (styles, action) => {
+    renderSectionAction = (styles, action, isDm) => {
         const {theme, currentTeam} = this.props;
 
         //mchat-mobile, block channel list from team
-        if (!currentTeam.display_name.endsWith('\u200b')) {
+        if (!currentTeam.display_name.endsWith('\u200b') && !isDm) {
             return null;
         }
 
@@ -337,6 +338,7 @@ export default class List extends PureComponent {
             bottomSeparator,
             defaultMessage,
             id,
+            isDm,
             topSeparator,
         } = section;
 
@@ -347,7 +349,7 @@ export default class List extends PureComponent {
                     <Text style={styles.title}>
                         {intl.formatMessage({id, defaultMessage}).toUpperCase()}
                     </Text>
-                    {action && this.renderSectionAction(styles, action)}
+                    {action && this.renderSectionAction(styles, action, isDm)}
                 </View>
                 {bottomSeparator && this.renderSectionSeparator()}
             </View>
