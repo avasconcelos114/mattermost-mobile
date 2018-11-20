@@ -157,6 +157,27 @@ export default class ChannelsList extends PureComponent {
             </View>
         );
 
+        //mchat-mobile, block mobile team
+        let listHeader;
+        if (!currentTeam.display_name.endsWith('\u200b')) {
+            title = (
+                <Text style={{...styles.blockedTeamText, flex: 1}}>
+                    {intl.formatMessage({
+                        id: 'mchat.block.search.team',
+                        defaultMessage: 'This team is unallowed.',
+                    })}
+                </Text>
+            );
+            listHeader = (
+                <Text style={styles.blockedTeamText}>
+                    {intl.formatMessage({
+                        id: 'mchat.block.channel.list.please',
+                        defaultMessage: 'Please, apply for permission to manager.',
+                    })}
+                </Text>
+            );
+        }
+
         return (
             <View
                 style={styles.container}
@@ -172,6 +193,7 @@ export default class ChannelsList extends PureComponent {
                         {title}
                     </View>
                 </View>
+                {listHeader}
                 {list}
             </View>
         );
@@ -265,7 +287,6 @@ const getStyleSheet = makeStyleSheetFromTheme((theme) => {
 
         //mchat-mobile, block mobile team
         blockedTeamText: {
-            flex: 1,
             color: theme.sidebarText,
             opacity: 1,
             fontSize: 16,

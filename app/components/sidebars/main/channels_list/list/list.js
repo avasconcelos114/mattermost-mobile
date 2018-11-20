@@ -22,7 +22,6 @@ import {ListTypes} from 'app/constants';
 import {SidebarSectionTypes} from 'app/constants/view';
 import {preventDoubleTap} from 'app/utils/tap';
 import {changeOpacity} from 'app/utils/theme';
-import {t} from 'app/utils/i18n';
 
 const VIEWABILITY_CONFIG = {
     ...ListTypes.VISIBILITY_CONFIG_DEFAULTS,
@@ -329,11 +328,11 @@ export default class List extends PureComponent {
         this.setState({width: width - 40});
     };
 
-    renderSectionAction = (styles, action) => {
+    renderSectionAction = (styles, action, isDm) => {
         const {theme, currentTeam} = this.props;
 
         //mchat-mobile, block channel list from team
-        if (!currentTeam.display_name.endsWith('\u200b')) {
+        if (!currentTeam.display_name.endsWith('\u200b') && !isDm) {
             return null;
         }
 
@@ -380,6 +379,7 @@ export default class List extends PureComponent {
             bottomSeparator,
             defaultMessage,
             id,
+            isDm,
             topSeparator,
         } = section;
 
@@ -390,7 +390,7 @@ export default class List extends PureComponent {
                     <Text style={styles.title}>
                         {intl.formatMessage({id, defaultMessage}).toUpperCase()}
                     </Text>
-                    {action && this.renderSectionAction(styles, action)}
+                    {action && this.renderSectionAction(styles, action, isDm)}
                 </View>
                 {bottomSeparator && this.renderSectionSeparator()}
             </View>
