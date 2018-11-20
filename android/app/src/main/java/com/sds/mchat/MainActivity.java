@@ -10,22 +10,30 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.text.TextUtils;
 
 import com.architectgroup.mchat.bas.BasManager;
 import com.architectgroup.mchat.bas.SSOManager;
+import com.architectgroup.mchat.bas.SSORequestKey;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.reactnativenavigation.controllers.SplashActivity;
+import com.sds.semp.SempManager;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import okhttp3.Call;
 
 public class MainActivity extends SplashActivity {
 
     private static final int REQUEST_READ_PHONE_STATE_PERMISSION = 100;
 
-    private BasManager mBasManager = BasManager.getInstance();
+    private BasManager mBasManager;
+
+    private SempManager mSempManager;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -45,14 +53,15 @@ public class MainActivity extends SplashActivity {
             return;
         }
 
+        mBasManager = BasManager.getInstance();
+        mSempManager = SempManager.getInstance(this);
+
         loadGif();
 
         if (isPermissionsGranted()) {
             bindBasManager();
-
         } else {
-            ActivityCompat.requestPermissions(
-                    this, new String[]{Manifest.permission.READ_PHONE_STATE}, REQUEST_READ_PHONE_STATE_PERMISSION);
+            requestPermissions();
         }
     }
 
@@ -70,39 +79,77 @@ public class MainActivity extends SplashActivity {
                 .setAutoPlayAnimations(true)
                 .build();
 
-        SimpleDraweeView simpleDraweeView = (SimpleDraweeView) findViewById(R.id.imgLogo);
+        SimpleDraweeView simpleDraweeView = findViewById(R.id.imgLogo);
         simpleDraweeView.setController(controller);
     }
 
     private boolean isPermissionsGranted() {
         if (Build.VERSION.SDK_INT >= 23) {
 
-            int isPermissionStatus = ActivityCompat.checkSelfPermission(
+            int isReadSmsPermission = ActivityCompat.checkSelfPermission(
+                    this, Manifest.permission.READ_SMS);
+
+            int isReadPhoneStatePermission = ActivityCompat.checkSelfPermission(
                     this, android.Manifest.permission.READ_PHONE_STATE);
 
-            return isPermissionStatus == PackageManager.PERMISSION_GRANTED;
+            int isReadPhoneNumberPermission;
+
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                isReadPhoneNumberPermission = ActivityCompat.checkSelfPermission(
+                        this, Manifest.permission.READ_PHONE_NUMBERS);
+            } else {
+                isReadPhoneNumberPermission = PackageManager.PERMISSION_GRANTED;
+            }
+
+            return (isReadSmsPermission == PackageManager.PERMISSION_GRANTED) &&
+                    (isReadPhoneStatePermission == PackageManager.PERMISSION_GRANTED) &&
+                    (isReadPhoneNumberPermission == PackageManager.PERMISSION_GRANTED);
 
         } else {
             return true;
         }
     }
 
-    private void bindBasManager() {
-        mBasManager.bindService(this, new BasManager.OnBindCallback() {
-            @Override
-            public void onBound(boolean isEnabled) {
-                if (isEnabled) {
-                    checkAppVersion();
-                } else {
-                    ExitAlert("Error", "BAS is not login");
-                }
-            }
+    private void requestPermissions() {
+        String[] requestPermissions;
 
-            @Override
-            public void onError(@NonNull String errorMsg) {
-                ExitAlert("Error", errorMsg);
-            }
-        });
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            requestPermissions = new String[]{
+                    Manifest.permission.READ_SMS,
+                    Manifest.permission.READ_PHONE_STATE,
+                    Manifest.permission.READ_PHONE_NUMBERS
+            };
+        } else {
+            requestPermissions = new String[]{
+                    Manifest.permission.READ_SMS,
+                    Manifest.permission.READ_PHONE_STATE
+            };
+        }
+        ActivityCompat.requestPermissions(
+                this, requestPermissions, REQUEST_READ_PHONE_STATE_PERMISSION);
+    }
+
+    private void bindBasManager() {
+        try {
+            mBasManager.bindService(this, new BasManager.OnBindCallback() {
+                @Override
+                public void onBound(boolean isEnabled) {
+                    if (isEnabled) {
+                        checkAppVersion();
+                    } else {
+                        ExitAlert("Error", "BAS is not login");
+                    }
+                }
+
+                @Override
+                public void onError(@NonNull String errorMsg) {
+                    ExitAlert("Error", errorMsg);
+                }
+            });
+
+        } catch (NullPointerException e) {
+            ExitAlert("Error", "BAS is not login");
+        }
     }
 
     private void checkAppVersion() {
@@ -128,7 +175,7 @@ public class MainActivity extends SplashActivity {
         mBasManager.getBasInfo(new BasManager.OnBasInfoCallback() {
             @Override
             public void onSuccess(@NonNull Map<String, String> userInfo, @NonNull Map<String, String> urlInfo) {
-                sendBasInfo(userInfo, urlInfo);
+                checkDS(userInfo, urlInfo);
             }
 
             @Override
@@ -138,7 +185,80 @@ public class MainActivity extends SplashActivity {
         });
     }
 
-    public void sendBasInfo(final Map<String, String> userInfo, final Map<String, String> url) {
+    /**
+     * DS 체크
+     * DS_Y인 경우 SMEP 라이브러리를 사용하여, 추가 인증 단계 진행 후 JS로 BAS 정보 전달
+     * DS_N인 경우 바로 JS로 BAS 정보 전달
+     * <p>
+     * "https://www.samsungsmartoffice.net/kms/jsp/wagle/mobile/common/semp/MobileMosaicSempDsCheck.jsp?knoxId={ID}"
+     */
+    private void checkDS(final Map<String, String> userInfo, final Map<String, String> urlInfo) {
+        mSempManager.checkDS(this, userInfo.get(SSORequestKey.USERID), new SempManager.OnDsCheckedCallback() {
+            @Override
+            public void onSuccess(@NonNull Call call, @NonNull String body) {
+                switch (body) {
+                    case SempManager.DS_Y:
+                        checkSemp(userInfo, urlInfo);
+                        break;
+
+                    case SempManager.DS_N:
+                        sendBasInfoFromJs(userInfo, urlInfo);
+                        break;
+
+                    default:
+                        ExitAlert("DS Error", "Need API verification.");
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                ExitAlert("DS Error", "Need API verification.");
+            }
+        });
+    }
+
+    /**
+     * SMEP 체크
+     * "ACTIVE_FG": "Y" or "N"
+     * "INOUTTYPE": "IN" or "OUT"
+     * ACTIVE_FG가 Y && INOUTTYPE가 IN인 경우에만 로그인 진행
+     * 그 외
+     */
+    private void checkSemp(final Map<String, String> userInfo, final Map<String, String> urlInfo) {
+        String userId =
+                userInfo.get(SSORequestKey.USERID);
+
+        String ipAddress =
+                Uri.parse(urlInfo.get(SSORequestKey.BASE)).getHost();
+
+        mSempManager.request(userId, ipAddress, new SempManager.OnSempCallback() {
+            @Override
+            public void onSuccess(int code, String activeFG, String inOutType) {
+                boolean isActiveFG = TextUtils.equals(activeFG, SempManager.ACTIVE_FG_Y);
+                boolean isInOutType = TextUtils.equals(inOutType, SempManager.INOUT_TYPE_IN);
+
+                if (isActiveFG && isInOutType) {
+                    sendBasInfoFromJs(userInfo, urlInfo);
+
+                } else {
+                    ExitAlert(
+                            "SEMP Error",
+                            "In accordance with the security policy of the DS division,\nYou can not use the MOSAIC App outside the company.\n\nContact : ci.office@samsung.com"
+                    );
+                }
+            }
+
+            @Override
+            public void onFailure(int code, String errorMessage) {
+                ExitAlert("SEMP Error", errorMessage);
+            }
+        });
+    }
+
+    /**
+     * REACT-NATIVE로 BAS 정보를 전달 (SSO 로그인에 사용)
+     */
+    public void sendBasInfoFromJs(final Map<String, String> userInfo, final Map<String, String> url) {
         MainApplication.waitInitReactContext(this, new MainApplication.ReactContextInitCallback() {
             @Override
             public void onInit() {
@@ -191,7 +311,9 @@ public class MainActivity extends SplashActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mBasManager.unBindService(this);
+        if (mBasManager != null) {
+            mBasManager.unBindService(this);
+        }
     }
 
 }
