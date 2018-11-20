@@ -539,6 +539,7 @@ export default class PostTextbox extends PureComponent {
 
             //mchat-mobile, block mobile team
             currentTeam,
+            currentChannel,
         } = this.props;
 
         const style = getStyleSheet(theme);
@@ -575,7 +576,7 @@ export default class PostTextbox extends PureComponent {
         }
 
         //mchat-mobile, block mobile team
-        if (!currentTeam.display_name.endsWith('\u200b')) {
+        if (!currentTeam.display_name.endsWith('\u200b') && currentChannel.type !== 'D') {
             return null;
         }
 
