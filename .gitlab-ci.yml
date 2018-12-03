@@ -1,7 +1,12 @@
-image: node:9.11.2
+image: finanzcheck/docker-node-java
+
+variables:
+  ANDROID_COMPILE_SDK: "28"
+  ANDROID_BUILD_TOOLS: "28.0.2"
+  ANDROID_SDK_TOOLS:   "4333796"
 
 stages:
-  - build
+  - install_dependencies
   - test
   - pull_upstream
   - rebase
@@ -13,7 +18,7 @@ cache:
     - dist/
 
 install_dependencies:
-  stage: build
+  stage: install_dependencies
   script:
     - make pre-run
     - cd node_modules/mattermost-redux && npm install 
@@ -36,14 +41,6 @@ pull_master_upstream:
   stage: pull_upstream
   only:
     - schedules 
-  before_script:
-    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
-    - eval $(ssh-agent -s)
-    - ssh-add <(echo "$SSH_PRIVATE_KEY") 
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - git config --global user.email "andre.tito@architectgroup.com"
-    - git config --global user.name "Andre Vasconcelos"
   script:
     - git clone https://andre.tito:andretito14@dev.architectgroup.com/argp/mchat/mchat-mobile.git
     - cd *mobile
@@ -55,14 +52,6 @@ rebase_to_master:
   stage: rebase
   only:
     - schedules
-  before_script:
-    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
-    - eval $(ssh-agent -s)
-    - ssh-add <(echo "$SSH_PRIVATE_KEY") 
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - git config --global user.email "andre.tito@architectgroup.com"
-    - git config --global user.name "Andre Vasconcelos"
 
   script:
     - git clone https://andre.tito:andretito14@dev.architectgroup.com/argp/mchat/mchat-mobile.git
@@ -70,3 +59,22 @@ rebase_to_master:
     - git checkout develop
     - git rebase origin/master
     - git push --force origin develop
+
+build_android:
+  stage: build_android
+  only:
+    - schedules
+  before_script:
+    - apt-get --quiet update --yes
+    - apt-get --quiet install --yes wget tar unzip lib32stdc++6 lib32z1
+    - wget --quiet --output-document=android-sdk.zip https://dl.google.com/android/repository/sdk-tools-linux-${ANDROID_SDK_TOOLS}.zip
+    - unzip -d android-sdk-linux android-sdk.zip
+    - echo y | android-sdk-linux/tools/bin/sdkmanager "platforms;android-${ANDROID_COMPILE_SDK}" >/dev/null
+    - echo y | android-sdk-linux/tools/bin/sdkmanager "platform-tools" >/dev/null
+    - echo y | android-sdk-linux/tools/bin/sdkmanager "build-tools;${ANDROID_BUILD_TOOLS}" >/dev/null
+    - export ANDROID_HOME=$PWD/android-sdk-linux
+    - export PATH=$PATH:$PWD/android-sdk-linux/platform-tools/
+    - cd android && chmod +x ./gradlew
+  script:
+    - git checkout develop
+    - ./gradlew assembleRelease
