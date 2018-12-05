@@ -6,9 +6,7 @@ import assert from 'assert';
 import {
     makePreparePostIdsForPostList,
     makePreparePostIdsForSearchPosts,
-
-    //mchat-mobile, 3days block
-    //START_OF_NEW_MESSAGES,
+    START_OF_NEW_MESSAGES,
 } from 'app/selectors/post_list';
 
 import {Posts, Preferences} from 'mattermost-redux/constants';
@@ -49,14 +47,11 @@ describe('Selectors.PostList', () => {
 
             // Defaults to show post
             let now = preparePostIdsForPostList(state, {postIds, lastViewedAt, indicateNewMessages});
-
-            //mchat-mobile, 3days block
-            /*assert.deepEqual(now, [
+            assert.deepEqual(now, [
                 '1002',
                 '1001',
-                'date-0',
-            ]);*/
-            assert.deepEqual(now, []);
+                'date-' + today.getTime(),
+            ]);
 
             // Show join/leave posts
             state = {
@@ -78,14 +73,11 @@ describe('Selectors.PostList', () => {
             };
 
             now = preparePostIdsForPostList(state, {postIds, lastViewedAt, indicateNewMessages});
-
-            //mchat-mobile, 3days block
-            /*assert.deepEqual(now, [
+            assert.deepEqual(now, [
                 '1002',
                 '1001',
-                'date-0',
-            ]);*/
-            assert.deepEqual(now, []);
+                'date-' + today.getTime(),
+            ]);
 
             // Hide join/leave posts
             state = {
@@ -107,13 +99,10 @@ describe('Selectors.PostList', () => {
             };
 
             now = preparePostIdsForPostList(state, {postIds, lastViewedAt, indicateNewMessages});
-
-            //mchat-mobile, 3days block
-            /*assert.deepEqual(now, [
+            assert.deepEqual(now, [
                 '1001',
-                'date-0',
-            ]);*/
-            assert.deepEqual(now, []);
+                'date-' + today.getTime(),
+            ]);
 
             // always show join/leave posts for the current user
             state = {
@@ -132,13 +121,11 @@ describe('Selectors.PostList', () => {
 
             now = preparePostIdsForPostList(state, {postIds, lastViewedAt, indicateNewMessages});
 
-            //mchat-mobile, 3days block
-            /*assert.deepEqual(now, [
+            assert.deepEqual(now, [
                 '1002',
                 '1001',
-                'date-0',
-            ]);*/
-            assert.deepEqual(now, []);
+                'date-' + today.getTime(),
+            ]);
         });
 
         it('new messages indicator', () => {
@@ -172,87 +159,66 @@ describe('Selectors.PostList', () => {
 
             // Do not show new messages indicator before all posts
             let now = preparePostIdsForPostList(state, {postIds, lastViewedAt: 0, indicateNewMessages: true});
-
-            //mchat-mobile, 3days block
-            /*assert.deepEqual(now, [
+            assert.deepEqual(now, [
                 '1010',
                 '1005',
                 '1000',
-                'date-1000',
-            ]);*/
-            assert.deepEqual(now, []);
+                'date-' + today.getTime(),
+            ]);
 
             now = preparePostIdsForPostList(state, {postIds, indicateNewMessages: true});
-
-            //mchat-mobile, 3days block
-            /*assert.deepEqual(now, [
+            assert.deepEqual(now, [
                 '1010',
                 '1005',
                 '1000',
-                'date-1000',
-            ]);*/
-            assert.deepEqual(now, []);
+                'date-' + today.getTime(),
+            ]);
 
-            now = preparePostIdsForPostList(state, {postIds, lastViewedAt: 999, indicateNewMessages: false});
-
-            //mchat-mobile, 3days block
-            /*assert.deepEqual(now, [
+            now = preparePostIdsForPostList(state, {postIds, lastViewedAt: time + 999, indicateNewMessages: false});
+            assert.deepEqual(now, [
                 '1010',
                 '1005',
                 '1000',
-                'date-1000',
-            ]);*/
-            assert.deepEqual(now, []);
+                'date-' + today.getTime(),
+            ]);
 
             // Show new messages indicator before all posts
-            now = preparePostIdsForPostList(state, {postIds, lastViewedAt: 999, indicateNewMessages: true});
-
-            //mchat-mobile, 3days block
-            /*assert.deepEqual(now, [
+            now = preparePostIdsForPostList(state, {postIds, lastViewedAt: time + 999, indicateNewMessages: true});
+            assert.deepEqual(now, [
                 '1010',
                 '1005',
                 '1000',
                 START_OF_NEW_MESSAGES,
-                'date-1000',
-            ]);*/
-            assert.deepEqual(now, []);
+                'date-' + today.getTime(),
+            ]);
 
             // Show indicator between posts
-            now = preparePostIdsForPostList(state, {postIds, lastViewedAt: 1003, indicateNewMessages: true});
-
-            //mchat-mobile, 3days block
-            /*assert.deepEqual(now, [
+            now = preparePostIdsForPostList(state, {postIds, lastViewedAt: time + 1003, indicateNewMessages: true});
+            assert.deepEqual(now, [
                 '1010',
                 '1005',
                 START_OF_NEW_MESSAGES,
                 '1000',
-                'date-1000',
-            ]);*/
-            assert.deepEqual(now, []);
+                'date-' + today.getTime(),
+            ]);
 
-            now = preparePostIdsForPostList(state, {postIds, lastViewedAt: 1006, indicateNewMessages: true});
-
-            //mchat-mobile, 3days block
-            /*assert.deepEqual(now, [
+            now = preparePostIdsForPostList(state, {postIds, lastViewedAt: time + 1006, indicateNewMessages: true});
+            assert.deepEqual(now, [
                 '1010',
                 START_OF_NEW_MESSAGES,
                 '1005',
                 '1000',
-                'date-1000',
-            ]);*/
-            assert.deepEqual(now, []);
+                'date-' + today.getTime(),
+            ]);
 
             // Don't show indicator when all posts are read
-            now = preparePostIdsForPostList(state, {postIds, lastViewedAt: 1020});
-
-            //mchat-mobile, 3days block
-            /*assert.deepEqual(now, [
+            now = preparePostIdsForPostList(state, {postIds, lastViewedAt: time + 1020});
+            assert.deepEqual(now, [
                 '1010',
                 '1005',
                 '1000',
-                'date-1000',
-            ]);*/
-            assert.deepEqual(now, []);
+                'date-' + today.getTime(),
+            ]);
         });
 
         it('memoization', () => {
@@ -304,35 +270,29 @@ describe('Selectors.PostList', () => {
             let lastViewedAt = initialPosts['1001'].create_at + 1;
 
             let now = preparePostIdsForPostList(state, {postIds, lastViewedAt, indicateNewMessages: true});
-
-            //mchat-mobile, 3days block
-            /*assert.deepEqual(now, [
+            assert.deepEqual(now, [
                 '1006',
                 '1004',
                 'date-' + tomorrow.getTime(),
                 '1003',
                 START_OF_NEW_MESSAGES,
                 '1001',
-                'date-3600000',
-            ]);*/
-            assert.deepEqual(now, []);
+                'date-' + today.getTime(),
+            ]);
 
             // No changes
             let prev = now;
             now = preparePostIdsForPostList(state, {postIds, lastViewedAt, indicateNewMessages: true});
             assert.equal(now, prev);
-
-            //mchat-mobile, 3days block
-            /*assert.deepEqual(now, [
+            assert.deepEqual(now, [
                 '1006',
                 '1004',
                 'date-' + tomorrow.getTime(),
                 '1003',
                 START_OF_NEW_MESSAGES,
                 '1001',
-                'date-3600000',
-            ]);*/
-            assert.deepEqual(now, []);
+                'date-' + today.getTime(),
+            ]);
 
             // lastViewedAt changed slightly
             lastViewedAt = initialPosts['1001'].create_at + 2;
@@ -340,53 +300,44 @@ describe('Selectors.PostList', () => {
             prev = now;
             now = preparePostIdsForPostList(state, {postIds, lastViewedAt, indicateNewMessages: true});
             assert.equal(now, prev);
-
-            //mchat-mobile, 3days block
-            /*assert.deepEqual(now, [
+            assert.deepEqual(now, [
                 '1006',
                 '1004',
                 'date-' + tomorrow.getTime(),
                 '1003',
                 START_OF_NEW_MESSAGES,
                 '1001',
-                'date-3600000',
-            ]);*/
-            assert.deepEqual(now, []);
+                'date-' + today.getTime(),
+            ]);
 
             // lastViewedAt changed a lot
             lastViewedAt = initialPosts['1003'].create_at + 1;
 
             prev = now;
             now = preparePostIdsForPostList(state, {postIds, lastViewedAt, indicateNewMessages: true});
-
-            //mchat-mobile, 3days block
-            //assert.notEqual(now, prev);
-            /*assert.deepEqual(now, [
+            assert.notEqual(now, prev);
+            assert.deepEqual(now, [
                 '1006',
                 '1004',
                 START_OF_NEW_MESSAGES,
                 'date-' + tomorrow.getTime(),
                 '1003',
                 '1001',
-                'date-3600000',
-            ]);*/
-            assert.deepEqual(now, []);
+                'date-' + today.getTime(),
+            ]);
 
             prev = now;
             now = preparePostIdsForPostList(state, {postIds, lastViewedAt, indicateNewMessages: true});
             assert.equal(now, prev);
-
-            //mchat-mobile, 3days block
-            /*assert.deepEqual(now, [
+            assert.deepEqual(now, [
                 '1006',
                 '1004',
                 START_OF_NEW_MESSAGES,
                 'date-' + tomorrow.getTime(),
                 '1003',
                 '1001',
-                'date-3600000',
-            ]);*/
-            assert.deepEqual(now, []);
+                'date-' + today.getTime(),
+            ]);
 
             // postIds changed, but still shallowly equal
             postIds = [...postIds];
@@ -394,18 +345,15 @@ describe('Selectors.PostList', () => {
             prev = now;
             now = preparePostIdsForPostList(state, {postIds, lastViewedAt, indicateNewMessages: true});
             assert.equal(now, prev);
-
-            //mchat-mobile, 3days block
-            /*assert.deepEqual(now, [
+            assert.deepEqual(now, [
                 '1006',
                 '1004',
                 START_OF_NEW_MESSAGES,
                 'date-' + tomorrow.getTime(),
                 '1003',
                 '1001',
-                'date-3600000',
-            ]);*/
-            assert.deepEqual(now, []);
+                'date-' + today.getTime(),
+            ]);
 
             // Post changed, not in postIds
             state = {
@@ -425,18 +373,15 @@ describe('Selectors.PostList', () => {
             prev = now;
             now = preparePostIdsForPostList(state, {postIds, lastViewedAt, indicateNewMessages: true});
             assert.equal(now, prev);
-
-            //mchat-mobile, 3days block
-            /*assert.deepEqual(now, [
+            assert.deepEqual(now, [
                 '1006',
                 '1004',
                 START_OF_NEW_MESSAGES,
                 'date-' + tomorrow.getTime(),
                 '1003',
                 '1001',
-                'date-3600000',
-            ]);*/
-            assert.deepEqual(now, []);
+                'date-' + today.getTime(),
+            ]);
 
             // Post changed, in postIds
             state = {
@@ -456,18 +401,15 @@ describe('Selectors.PostList', () => {
             prev = now;
             now = preparePostIdsForPostList(state, {postIds, lastViewedAt, indicateNewMessages: true});
             assert.equal(now, prev);
-
-            //mchat-mobile, 3days block
-            /*assert.deepEqual(now, [
+            assert.deepEqual(now, [
                 '1006',
                 '1004',
                 START_OF_NEW_MESSAGES,
                 'date-' + tomorrow.getTime(),
                 '1003',
                 '1001',
-                'date-3600000',
-            ]);*/
-            assert.deepEqual(now, []);
+                'date-' + today.getTime(),
+            ]);
 
             // Filter changed
             state = {
@@ -490,33 +432,27 @@ describe('Selectors.PostList', () => {
 
             prev = now;
             now = preparePostIdsForPostList(state, {postIds, lastViewedAt, indicateNewMessages: true});
-
-            //mchat-mobile, 3days block
-            //assert.notEqual(now, prev);
-            /*assert.deepEqual(now, [
+            assert.notEqual(now, prev);
+            assert.deepEqual(now, [
                 '1004',
                 START_OF_NEW_MESSAGES,
                 'date-' + tomorrow.getTime(),
                 '1003',
                 '1001',
-                'date-3600000',
-            ]);*/
-            assert.deepEqual(now, []);
+                'date-' + today.getTime(),
+            ]);
 
             prev = now;
             now = preparePostIdsForPostList(state, {postIds, lastViewedAt, indicateNewMessages: true});
             assert.equal(now, prev);
-
-            //mchat-mobile, 3days block
-            /*assert.deepEqual(now, [
+            assert.deepEqual(now, [
                 '1004',
                 START_OF_NEW_MESSAGES,
                 'date-' + tomorrow.getTime(),
                 '1003',
                 '1001',
-                'date-3600000',
-            ]);*/
-            assert.deepEqual(now, []);
+                'date-' + today.getTime(),
+            ]);
         });
     });
 
