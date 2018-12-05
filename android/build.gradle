@@ -45,6 +45,10 @@ allprojects {
         flatDir {
             dirs 'aars'
         }
+        //TODO: Remove after Google issue is fixed
+        maven { 
+            url 'https://dl.bintray.com/android/android-tools' 
+        }
         maven {
             url 'https://maven.google.com'
         }
