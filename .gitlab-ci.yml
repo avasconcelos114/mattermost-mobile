@@ -1,8 +1,8 @@
-image: finanzcheck/docker-node-java
+image: avasconcelos114/docker-java-node
 
 variables:
-  ANDROID_COMPILE_SDK: "28"
-  ANDROID_BUILD_TOOLS: "28.0.2"
+  ANDROID_COMPILE_SDK: "27"
+  ANDROID_BUILD_TOOLS: "27.0.3"
   ANDROID_SDK_TOOLS:   "4333796"
 
 stages:
@@ -20,11 +20,11 @@ cache:
 install_dependencies:
   stage: install_dependencies
   script:
-    - make pre-run
+    - rm -rf node_modules && npm install
     - cd node_modules/mattermost-redux && npm install 
     - npm run build
     - cd ../../
-    - make dist/assets
+    - rm -rf dist && make dist/assets
   artifacts:
     paths:
       - node_modules/
@@ -34,13 +34,22 @@ run_unit_tests:
   stage: test
   script:
     - find dist/assets/ -name config.json
-    - make check-style 
+    - npm run check
     - npm test
 
 pull_master_upstream:
   stage: pull_upstream
   only:
     - schedules 
+  before_script:
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )' 
+    - eval $(ssh-agent -s) 
+    - ssh-add <(echo "$SSH_PRIVATE_KEY")  
+    - mkdir -p ~/.ssh 
+    - chmod 700 ~/.ssh 
+    - git config --global user.email "andre.tito@architectgroup.com" 
+    - git config --global user.name "Andre Vasconcelos" 
+
   script:
     - git clone https://andre.tito:andretito14@dev.architectgroup.com/argp/mchat/mchat-mobile.git
     - cd *mobile
@@ -52,6 +61,14 @@ rebase_to_master:
   stage: rebase
   only:
     - schedules
+  before_script:
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )' 
+    - eval $(ssh-agent -s) 
+    - ssh-add <(echo "$SSH_PRIVATE_KEY")  
+    - mkdir -p ~/.ssh 
+    - chmod 700 ~/.ssh 
+    - git config --global user.email "andre.tito@architectgroup.com" 
+    - git config --global user.name "Andre Vasconcelos" 
 
   script:
     - git clone https://andre.tito:andretito14@dev.architectgroup.com/argp/mchat/mchat-mobile.git
@@ -65,16 +82,26 @@ build_android:
   only:
     - schedules
   before_script:
-    - apt-get --quiet update --yes
-    - apt-get --quiet install --yes wget tar unzip lib32stdc++6 lib32z1
+    - cd ~
     - wget --quiet --output-document=android-sdk.zip https://dl.google.com/android/repository/sdk-tools-linux-${ANDROID_SDK_TOOLS}.zip
     - unzip -d android-sdk-linux android-sdk.zip
-    - echo y | android-sdk-linux/tools/bin/sdkmanager "platforms;android-${ANDROID_COMPILE_SDK}" >/dev/null
+    - mkdir ~/.android && touch ~/.android/repositories.cfg
+    - echo y | android-sdk-linux/tools/bin/sdkmanager "platforms;android-27" >/dev/null
     - echo y | android-sdk-linux/tools/bin/sdkmanager "platform-tools" >/dev/null
-    - echo y | android-sdk-linux/tools/bin/sdkmanager "build-tools;${ANDROID_BUILD_TOOLS}" >/dev/null
-    - export ANDROID_HOME=$PWD/android-sdk-linux
-    - export PATH=$PATH:$PWD/android-sdk-linux/platform-tools/
-    - cd android && chmod +x ./gradlew
+    - echo y | android-sdk-linux/tools/bin/sdkmanager "tools" >/dev/null
+    - echo y | android-sdk-linux/tools/bin/sdkmanager "build-tools;23.0.3" >/dev/null
+    - echo y | android-sdk-linux/tools/bin/sdkmanager "build-tools;25.0.3" >/dev/null
+    - echo y | android-sdk-linux/tools/bin/sdkmanager "build-tools;26.0.1" >/dev/null
+    - echo y | android-sdk-linux/tools/bin/sdkmanager "build-tools;27.0.1" >/dev/null
+    - echo y | android-sdk-linux/tools/bin/sdkmanager "build-tools;27.0.3" >/dev/null
+    - echo y | android-sdk-linux/tools/bin/sdkmanager "build-tools;28.0.3" >/dev/null
+    - echo y | android-sdk-linux/tools/bin/sdkmanager "extras;android;m2repository" >/dev/null
+    - echo y | android-sdk-linux/tools/bin/sdkmanager "extras;google;m2repository" >/dev/null
+    - export ANDROID_HOME=/root/android-sdk-linux
+    - export PATH=$PATH:/root/android-sdk-linux/platform-tools/
+    - cd /builds/argp/mchat/mchat-mobile/
   script:
     - git checkout develop
+    - git reset --hard origin/develop
+    - cd android
     - ./gradlew assembleRelease
