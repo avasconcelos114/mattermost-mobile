@@ -51,6 +51,10 @@ export default class Channel extends PureComponent {
             selectDefaultTeam: PropTypes.func.isRequired,
             selectInitialChannel: PropTypes.func.isRequired,
             recordLoadTime: PropTypes.func.isRequired,
+            setDeepLinkURL: PropTypes.func.isRequired,
+            createDirectChannel: PropTypes.func.isRequired,
+            handleSelectChannel: PropTypes.func.isRequired,
+            setChannelDisplayName: PropTypes.func.isRequired,
         }).isRequired,
         currentChannelId: PropTypes.string,
         channelsRequestFailed: PropTypes.bool,
@@ -60,6 +64,7 @@ export default class Channel extends PureComponent {
         theme: PropTypes.object.isRequired,
         showTermsOfService: PropTypes.bool,
         disableTermsModal: PropTypes.bool,
+        deepLinkURL: PropTypes.string,
     };
 
     static contextTypes = {
@@ -124,6 +129,12 @@ export default class Channel extends PureComponent {
     componentDidUpdate(prevProps) {
         if (tracker.teamSwitch) {
             this.props.actions.recordLoadTime('Switch Team', 'teamSwitch');
+        }
+
+        // Handle DM Deeplinks
+        if (this.props.deepLinkURL) {
+            this.handleDeepLink(this.props.deepLinkURL);
+            this.props.actions.setDeepLinkURL('');
         }
 
         // When the team changes emit the event to render the drawer content
@@ -232,6 +243,51 @@ export default class Channel extends PureComponent {
 
     handleLeaveTeam = () => {
         this.props.actions.selectDefaultTeam();
+    };
+
+    handleDeepLink = async (url) => {
+        const {
+            currentUser,
+            currentChannelId,
+            theme,
+            actions: {
+                createDirectChannel,
+                handleSelectChannel,
+                setChannelDisplayName,
+            },
+        } = this.props;
+        const links = url.split('/');
+        const type = links[links.length - 2];
+        const userId = links[links.length - 1];
+
+        if (type === 'direct') {
+            const {data, error} = await createDirectChannel(currentUser.id, userId);
+            if (error) {
+                console.log(error); //eslint-disable-line
+                return;
+            }
+            handleSelectChannel(data.id);
+            setChannelDisplayName(data.display_name);
+
+            if (currentChannelId === data.id) {
+                EventEmitter.emit('reset_channel');
+            } else {
+                navigator.resetTo({
+                    screen: 'Channel',
+                    animated: true,
+                    animationType: 'fade',
+                    navigatorStyle: {
+                        navBarHidden: true,
+                        statusBarHidden: false,
+                        statusBarHideWithNavBar: false,
+                        screenBackgroundColor: theme.centerChannelBg,
+                    },
+                    passProps: {
+                        disableTermsModal: true,
+                    },
+                });
+            }
+        }
     };
 
     loadChannels = (teamId) => {
