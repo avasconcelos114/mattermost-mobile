@@ -9,15 +9,18 @@ import {RequestStatus} from 'mattermost-redux/constants';
 import {getCurrentChannelId} from 'mattermost-redux/selectors/entities/channels';
 import {getCurrentTeamId} from 'mattermost-redux/selectors/entities/teams';
 import {getTheme} from 'mattermost-redux/selectors/entities/preferences';
-import {shouldShowTermsOfService} from 'mattermost-redux/selectors/entities/users';
+import {shouldShowTermsOfService, getCurrentUser} from 'mattermost-redux/selectors/entities/users';
+import {createDirectChannel} from 'mattermost-redux/actions/channels';
 
 import {
     loadChannelsIfNecessary,
     loadProfilesAndTeamMembersForDMSidebar,
     selectInitialChannel,
+    handleSelectChannel,
+    setChannelDisplayName,
 } from 'app/actions/views/channel';
 import {connection} from 'app/actions/device';
-import {recordLoadTime} from 'app/actions/views/root';
+import {recordLoadTime, setDeepLinkURL} from 'app/actions/views/root';
 import {selectDefaultTeam} from 'app/actions/views/select_team';
 import {isLandscape} from 'app/selectors/device';
 
@@ -33,6 +36,8 @@ function mapStateToProps(state) {
         isLandscape: isLandscape(state),
         theme: getTheme(state),
         showTermsOfService: shouldShowTermsOfService(state),
+        deepLinkURL: state.views.root.deepLinkURL,
+        currentUser: getCurrentUser(state),
     };
 }
 
@@ -48,6 +53,10 @@ function mapDispatchToProps(dispatch) {
             recordLoadTime,
             startPeriodicStatusUpdates,
             stopPeriodicStatusUpdates,
+            setDeepLinkURL,
+            createDirectChannel,
+            handleSelectChannel,
+            setChannelDisplayName,
         }, dispatch),
     };
 }

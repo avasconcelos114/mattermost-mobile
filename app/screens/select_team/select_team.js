@@ -50,6 +50,7 @@ export default class SelectTeam extends PureComponent {
             markChannelAsRead: PropTypes.func.isRequired,
         }).isRequired,
         currentChannelId: PropTypes.string,
+        joinTeamRequest: PropTypes.object.isRequired,
         navigator: PropTypes.object,
         userWithoutTeams: PropTypes.bool,
         teams: PropTypes.array.isRequired,
