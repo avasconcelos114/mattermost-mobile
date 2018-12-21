@@ -11,6 +11,7 @@ public class MChatConstants {
     private static final String MCHAT_SCHEME = "https://";
     private static final String MCHAT_HOST_ENCODED = "aHR0cHM6Ly93d3cuc2Ftc3VuZ3NtYXJ0b2ZmaWNlLm5ldDo4OTAw";
     private static final String MCHAT_PORT = "8900";
+    private static final Boolean IS_PROD = false;
 
     public static final String getDefaultScheme() {
         return MCHAT_SCHEME;
@@ -22,6 +23,10 @@ public class MChatConstants {
 
     public static final String getDefaultPort() {
         return MCHAT_PORT;
+    }
+
+    public static final boolean isProd() {
+        return IS_PROD;
     }
 
 }
