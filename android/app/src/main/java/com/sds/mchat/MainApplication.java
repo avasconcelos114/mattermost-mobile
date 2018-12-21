@@ -18,6 +18,7 @@ import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.facebook.soloader.SoLoader;
 import com.gantix.JailMonkey.JailMonkeyPackage;
+import com.github.godness84.RNRecyclerViewList.RNRecyclerviewListPackage;
 import com.gnet.bottomsheet.RNBottomSheetPackage;
 import com.horcrux.svg.SvgPackage;
 import com.imagepicker.ImagePickerPackage;
@@ -184,6 +185,11 @@ public class MainApplication extends NavigationApplication implements INotificat
             @Override
             public String getPackageName() {
                 return MainApplication.this.getPackageName();
+            }
+
+            @Override
+            public boolean isProd() {
+                return MChatConstants.isProd();
             }
         });
     }
