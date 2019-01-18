@@ -113,8 +113,8 @@ android {
         applicationId "com.sds.mchat"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 20181221
-        versionName "1.2.0"
+        versionCode 20190118
+        versionName "1.2.1"
         multiDexEnabled = true
         ndk {
             abiFilters "armeabi-v7a", "x86"
