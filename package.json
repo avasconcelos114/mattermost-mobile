@@ -17,7 +17,7 @@
     "intl": "1.2.5",
     "jail-monkey": "1.0.0",
     "jsc-android": "236355.1.0",
-    "mattermost-redux": "git+https://andre.tito:andretito14@dev.architectgroup.com/argp/mchat/mattermost-redux#develop",
+    "mattermost-redux": "git+https://andre.tito:andretito14@dev.architectgroup.com/argp/mchat/mattermost-redux#cf70406a50b1dfd77191fd9fd73cd2fc5de86bcf",
     "mime-db": "1.37.0",
     "moment-timezone": "0.5.23",
     "prop-types": "15.6.2",
