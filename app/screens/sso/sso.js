@@ -97,8 +97,12 @@ class SSO extends PureComponent {
         case ViewTypes.BAS:
             HEADERS.e = props.epId;
             HEADERS.u = props.userId;
-            this.loginUrl = `${props.ssoUrl}?redirect_to=/`;
-            this.completedUrl = 'www.samsungsmartoffice.net';
+
+            // this.loginUrl = `${props.ssoUrl}?redirect_to=/`;
+            // this.completedUrl = 'www.samsungsmartoffice.net';
+
+            this.loginUrl = 'http://210.118.57.138:8096/kms/jsp/saml/mattermost/mobile.jsp';
+            this.completedUrl = 'http://210.118.57.138';
             break;
         }
     }
@@ -218,7 +222,8 @@ class SSO extends PureComponent {
     };
 
     getServerUrl = () => {
-        return this.props.ssoType === ViewTypes.BAS ? this.props.baseUrl : this.props.serverUrl;
+        // return this.props.ssoType === ViewTypes.BAS ? this.props.baseUrl : this.props.serverUrl;
+        return 'http://210.118.57.138:8900';
     };
 
     renderLoading = () => {
