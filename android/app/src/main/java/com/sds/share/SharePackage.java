@@ -5,7 +5,7 @@ import com.facebook.react.bridge.JavaScriptModule;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.uimanager.ViewManager;
 import com.facebook.react.ReactPackage;
-import com.sds.mchat.MainApplication;
+import com.sds.mchatdev.MainApplication;
 
 import java.util.Arrays;
 import java.util.Collections;

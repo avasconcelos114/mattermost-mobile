@@ -1,4 +1,4 @@
-package com.sds.mchat;
+package com.sds.mchatdev;
 
 import java.util.Arrays;
 import java.util.List;

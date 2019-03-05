@@ -3,7 +3,7 @@ package com.sds.share;
 import android.os.Bundle;
 
 import com.facebook.react.ReactActivity;
-import com.sds.mchat.MainApplication;
+import com.sds.mchatdev.MainApplication;
 
 public class ShareActivity extends ReactActivity {
     @Override

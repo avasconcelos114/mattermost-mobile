@@ -19,7 +19,7 @@ import {changeOpacity, makeStyleSheetFromTheme, setNavigatorStyles} from 'app/ut
 import AppIcon from 'app/components/app_icon';
 import Config from 'assets/config';
 
-const MATTERMOST_BUNDLE_IDS = ['com.sds.mchat', 'com.mattermost.rn'];
+const MATTERMOST_BUNDLE_IDS = ['com.sds.mchatdev', 'com.mattermost.rn'];
 
 export default class About extends PureComponent {
     static propTypes = {

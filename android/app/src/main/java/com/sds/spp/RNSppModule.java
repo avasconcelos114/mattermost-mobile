@@ -8,7 +8,7 @@ import com.architectgroup.mchat.spp.SppManager;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
-import com.sds.mchat.MainApplication;
+import com.sds.mchatdev.MainApplication;
 
 public class RNSppModule extends ReactContextBaseJavaModule {
 

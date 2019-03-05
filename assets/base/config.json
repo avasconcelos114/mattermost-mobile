@@ -39,7 +39,7 @@
     "MobileClientUpgradeAndroidApkLink": "https://about.mattermost.com/mattermost-android-app/",
     "MobileClientUpgradeIosIpaLink": "https://about.mattermost.com/mattermost-ios-app/",
 
-    "AppGroupId": "group.com.sds.mchat",
+    "AppGroupId": "group.com.sds.mchatdev",
 
     "ShowSentryDebugOptions": false,
 

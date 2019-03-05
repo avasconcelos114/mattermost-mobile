@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.sds.mchat"
-    android:versionCode="20190211"
-    android:versionName="1.2.2">
+    package="com.sds.mchatdev"
+    android:versionCode="20190305"
+    android:versionName="1.2.4">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
@@ -24,7 +24,7 @@
         android:targetSdkVersion="22" />
 
     <application
-      android:name="com.sds.mchat.MainApplication"
+      android:name="com.sds.mchatdev.MainApplication"
       android:allowBackup="true"
       android:label="@string/app_name"
       android:icon="@mipmap/ic_launcher"
@@ -36,7 +36,7 @@
 
         <!--<meta-data android:name="com.wix.reactnativenotifications.gcmSenderId" android:value="184930218130\"/>-->
       <activity
-        android:name="com.sds.mchat.MainActivity"
+        android:name="com.sds.mchatdev.MainActivity"
         android:label="@string/app_name"
         android:launchMode="singleTask"
         android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
@@ -54,10 +54,10 @@
         </intent-filter>
       </activity>
       <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
-      <service android:name="com.sds.mchat.NotificationDismissService"
+      <service android:name="com.sds.mchatdev.NotificationDismissService"
                 android:enabled="true"
                 android:exported="false" />
-      <service android:name="com.sds.mchat.NotificationReplyService"
+      <service android:name="com.sds.mchatdev.NotificationReplyService"
                android:enabled="true"
                android:exported="false" />
         <activity

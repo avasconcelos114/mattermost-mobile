@@ -1,4 +1,4 @@
-package com.sds.mchat;
+package com.sds.mchatdev;
 
 import android.app.Application;
 import android.support.annotation.Nullable;
