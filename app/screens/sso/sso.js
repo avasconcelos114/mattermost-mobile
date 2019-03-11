@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import {WebView} from 'react-native-webview';
 import CookieManager from 'react-native-cookies';
+import urlParse from 'url-parse';
 
 import {Client4} from 'mattermost-redux/client';
 
