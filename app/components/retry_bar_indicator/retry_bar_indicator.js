@@ -13,6 +13,10 @@ const {View: AnimatedView} = Animated;
 export default class RetryBarIndicator extends PureComponent {
     static propTypes = {
         failed: PropTypes.bool,
+
+        // mchat-mobile, refresing isseu, https://slexn.net/cb/issue/22850#comment-142791
+        retry: PropTypes.bool,
+        socket: PropTypes.bool,
     };
 
     state = {
@@ -20,9 +24,10 @@ export default class RetryBarIndicator extends PureComponent {
     };
 
     componentWillReceiveProps(nextProps) {
-        if (this.props.failed !== nextProps.failed) {
-            this.toggleRetryMessage(nextProps.failed);
+        if (nextProps.retry && nextProps.socket && !nextProps.failed) {
+            this.toggleRetryMessage(true);
         }
+        this.toggleRetryMessage(false);
     }
 
     toggleRetryMessage = (show = true) => {

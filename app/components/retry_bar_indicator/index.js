@@ -13,13 +13,18 @@ function mapStateToProps(state) {
     const networkOnline = getConnection(state);
     const webSocketOnline = websocketRequest.status === RequestStatus.SUCCESS;
 
-    let failed = state.views.channel.retryFailed && webSocketOnline;
+    // mchat-mobile, refresing isseu, https://slexn.net/cb/issue/22850#comment-142791
+    const retry = state.views.channel.retryFailed;
+    const socket = webSocketOnline;
+    let failed = retry && socket; // state.views.channel.retryFailed && webSocketOnline;
     if (!networkOnline) {
         failed = false;
     }
 
     return {
         failed,
+        retry,
+        socket,
     };
 }
 export default connect(mapStateToProps)(RetryBarIndicator);
